@@ -1,5 +1,5 @@
 ;; PACKAGES
-(setq package-list '(omnisharp company xah-fly-keys web-mode))
+(setq package-list '(omnisharp company xah-fly-keys command-log-mode web-mode))
 
 ;; MELPA
 (require 'package)
@@ -57,7 +57,7 @@
   (setq tab-width 4)
   (setq evil-shift-width 4)
 
-  ;csharp-mode README.md recommends this too
+  ;Csharp-mode README.md recommends this too
   ;(electric-pair-mode 1)       ;; Emacs 24
   ;(electric-pair-local-mode 1) ;; Emacs 25
 
@@ -68,11 +68,21 @@
 
 (add-hook 'csharp-mode-hook 'my-csharp-mode-setup t)
 
+;; Setup
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (set-foreground-color "burlywood3")
-(set-background-color "#161616")
+(set-background-color "#141414")
 (set-cursor-color "#40FF40")
+(setq split-window-preferred-function nil)
+
+; Startup windowing
+(w32-send-sys-command 61488)
+(setq next-line-add-newlines nil)
+(setq-default truncate-lines t)
+(setq truncate-partial-width-windows nil)
+(split-window-horizontally)
+
 
 ;; turn of bell
 (setq ring-bell-function 'ignore)
