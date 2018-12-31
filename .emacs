@@ -1,20 +1,32 @@
 ;; PACKAGES
-(setq package-list '(omnisharp company xah-fly-keys command-log-mode web-mode))
+(setq package-list '(ivy swiper flycheck flycheck-pos-tip dumb-jump company company-irony irony))
 
 ;; MELPA
 (require 'package)
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
        (proto (if no-ssl "http" "https")))
+  (when no-ssl
+    (warn "\
+Your version of Emacs does not support SSL connections,
+which is unsafe because it allows man-in-the-middle attacks.
+There are two things you can do about this warning:
+1. Install an Emacs version that does support SSL and be safe.
+2. Remove this warning from your init file so you won't see it again."))
   ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
   (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
   ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
   (when (< emacs-major-version 24)
     ;; For important compatibility libraries like cl-lib
     (add-to-list 'package-archives (cons "gnu" (concat proto "://elpa.gnu.org/packages/")))))
+q
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
 (package-initialize)
 
-; fetch the list of packages available 
+; fetch the list of packages available
 (unless package-archive-contents
   (package-refresh-contents))
 
@@ -23,104 +35,198 @@
   (unless (package-installed-p package)
     (package-install package)))
 
-(eval-after-load
-  'company
-  '(add-to-list 'company-backends #'company-omnisharp))
-
-(require 'xah-fly-keys)
-
-(xah-fly-keys-set-layout "qwerty") ; required if you use qwerty
-
-;; possible layout values:
-;; "qwerty"
-;; "qwerty-abnt"
-;; "qwertz"
-;; "dvorak"
-;; "programer-dvorak"
-;; "colemak"
-;; "colemak-mod-dh"
-;; "workman"
-
-;; dvorak is the default
-
-(xah-fly-keys 1)
-
-(defun my-csharp-mode-setup ()
-  (omnisharp-mode)
-  (company-mode)
-
-  (setq indent-tabs-mode nil)
-  (setq c-syntactic-indentation t)
-  (c-set-style "ellemtel")
-  (setq c-basic-offset 4)
-  (setq truncate-lines t)
-  (setq tab-width 4)
-  (setq evil-shift-width 4)
-
-  ;Csharp-mode README.md recommends this too
-  ;(electric-pair-mode 1)       ;; Emacs 24
-  ;(electric-pair-local-mode 1) ;; Emacs 25
-
-  (local-set-key (kbd "C-c r r") 'omnisharp-run-code-action-refactoring)
-  (local-set-key (kbd "C-c C-c") 'recompile))
-  (setq company-dabbrev-downcase 0)
-  (setq company-idle-delay 0)
-
-(add-hook 'csharp-mode-hook 'my-csharp-mode-setup t)
-
 ;; Setup
+(add-to-list 'default-frame-alist '(font . "Liberation Mono-11.5"))
+(set-face-attribute 'default t :font "Liberation Mono-11.5")
 (menu-bar-mode -1)
 (tool-bar-mode -1)
-(set-foreground-color "burlywood3")
-(set-background-color "#141414")
+(set-foreground-color "white")
+(set-background-color "#1E1E1E")
 (set-cursor-color "#40FF40")
 (setq split-window-preferred-function nil)
+(global-hl-line-mode nil)
+(set-face-background 'hl-line "midnight blue")
 
-; Startup windowing
-(w32-send-sys-command 61488)
-(setq next-line-add-newlines nil)
-(setq-default truncate-lines t)
-(setq truncate-partial-width-windows nil)
-(split-window-horizontally)
+;; Custom keys
+
+;;(define-key global-map "\C-r" 'kill-region)
+(define-key global-map [C-tab] 'indent-region)
+
+;; Custom functions
+
+(defun what-face (pos)
+    (interactive "d")
+        (let ((face (or (get-char-property (point) 'read-face-name)
+            (get-char-property (point) 'face))))
+    (if face (message "Face: %s" face) (message "No face at %d" pos))))
+
+;; Disable mousewheel
+(mouse-wheel-mode -1)
+(global-set-key [wheel-up] 'ignore)
+(global-set-key [wheel-down] 'ignore)
+(global-set-key [double-wheel-up] 'ignore)
+(global-set-key [double-wheel-down] 'ignore)
+(global-set-key [triple-wheel-up] 'ignore)
+(global-set-key [triple-wheel-down] 'ignore)
+
+;; transparent mark
+(defadvice set-mark-command (after no-bloody-t-m-m activate)
+  "Prevent consecutive marks activating bloody `transient-mark-mode'."
+  (if transient-mark-mode (setq transient-mark-mode nil)))
+
+;; Bigger undo
+(setq undo-limit 20000000)
+(setq undo-strong-limit 40000000)
+
+;disable backup
+(setq backup-inhibited t)
+;disable auto save
+(setq auto-save-default nil)
+
+;; tabwidth
+;;(setq-default c-basic-offset 4)
+;;(setq c-default-style "linux"
+;;      c-basic-offset 4)
+
+;; Flycheck
+(global-flycheck-mode 1)
+(flycheck-pos-tip-mode 1)
+(setq flycheck-indication-mode nil)
+(setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp))
+
+;; IVY
+(setq ivy-use-virtual-buffers t)
+(setq ivy-count-format "(%d/%d) ")
+(ivy-mode 1)
+
+;; SWIPER
+(global-set-key (kbd "C-s") 'swiper)
+
+;; DUMB-JUMP
+(dumb-jump-mode 1)
+
+;; Show matchin parenthesis
+(show-paren-mode 1)
+
+; C++ indentation style
+(defconst petri-c-style
+  '((c-electric-pound-behavior   . nil)
+    (c-tab-always-indent         . t)
+    (c-comment-only-line-offset  . 0)
+    (c-hanging-braces-alist      . ((class-open)
+                                    (class-close)
+                                    (defun-open)
+                                    (defun-close)
+                                    (inline-open)
+                                    (inline-close)
+                                    (brace-list-open)
+                                    (brace-list-close)
+                                    (brace-list-intro)
+                                    (brace-list-entry)
+                                    (block-open)
+                                    (block-close)
+                                    (substatement-open)
+                                    (statement-case-open)
+                                    (class-open)))
+    (c-hanging-colons-alist      . ((inher-intro)
+                                    (case-label)
+                                    (label)
+                                    (access-label)
+                                    (access-key)
+                                    (member-init-intro)))
+    (c-cleanup-list              . (scope-operator
+                                    list-close-comma
+                                    defun-close-semi))
+    (c-offsets-alist             . ((arglist-close         .  c-lineup-arglist)
+                                    (label                 . -4)
+                                    (access-label          . -4)
+                                    (substatement-open     .  0)
+                                    (statement-case-intro  .  4)
+                                    (statement-block-intro .  c-lineup-for)
+                                    (case-label            .  4)
+                                    (block-open            .  0)
+                                    (inline-open           .  0)
+                                    (topmost-intro-cont    .  0)
+                                    (knr-argdecl-intro     . -4)
+                                    (brace-list-open       .  0)
+                                    (brace-list-intro      .  4)))
+    (c-echo-syntactic-information-p . t))
+    "Petri C++ Style")
 
 
-;; turn of bell
-(setq ring-bell-function 'ignore)
+; CC++ mode handling
+(defun petri-c-hook ()
+  ; Set my style for the current buffer
+  (c-add-style "BigFun" petri-c-style t)
+  
+  ; 4-space tabs
+  (setq tab-width 4
+        indent-tabs-mode nil)
+  ; Additional style stuff
+  (c-set-offset 'member-init-intro '++)
 
-;; Web-Mode
-(require 'web-mode)
-(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+  ; No hungry backspace
+  (c-toggle-auto-hungry-state nil)
 
-(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+  ; Newline indents, semi-colon doesn't
+  (define-key c++-mode-map "\C-m" 'newline-and-indent)
+  (setq c-hanging-semi&comma-criteria '((lambda () 'stop)))
 
-(setq web-mode-engines-alist
-      '(("php"    . "\\.phtml\\'")
-        ("blade"  . "\\.blade\\."))
-      )
+  ; Handle super-tabbify (TAB completes, shift-TAB actually tabs)
+  (setq dabbrev-case-replace t)
+  (setq dabbrev-case-fold-search t)
+  (setq dabbrev-upcase-means-case-search t)
 
-;; Recent Files
-(recentf-mode 1)
-(setq recentf-max-menu-items 25)
-(global-set-key "\C-c\ \C-o" 'recentf-open-files)
-
-;; Command-log
-(require 'command-log-mode)
-(add-hook 'LaTeX-mode-hook 'command-log-mode)
-
-;; No Autosave or backup
-(setq make-backup-files nil) ; stop creating backup~ files
-(setq auto-save-default nil) ; stop creating #autosave# files
-
-(custom-set-faces
-  '(org-level-1 ((t (:inherit outline-1 :height 2.0))))
-  '(org-level-2 ((t (:inherit outline-2 :height 1.5))))
-  '(org-level-3 ((t (:inherit outline-3 :height 1.2))))
-  '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
-  '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
+  ; Abbrevation expansion
+  (abbrev-mode 1)
 )
+
+(add-hook 'c-mode-common-hook 'petri-c-hook)
+
+;; Company-mode
+(setq company-dabbrev-downcase 0)
+(setq company-idle-delay 0)
+(add-hook 'after-init-hook 'global-company-mode)
+(eval-after-load 'company
+  '(add-to-list 'company-backends 'company-irony))
+
+;; IRONY
+(add-hook 'c++-mode-hook 'irony-mode)
+(add-hook 'c-mode-hook 'irony-mode)
+(add-hook 'objc-mode-hook 'irony-mode)
+(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+
+;; Windows performance tweaks
+(when (boundp 'w32-pipe-read-delay)
+  (setq w32-pipe-read-delay 0))
+;; Set the buffer size to 64K on Windows (from the original 4K)
+(when (boundp 'w32-pipe-buffer-size)
+  (setq irony-server-w32-pipe-buffer-size (* 64 1024)))
+
+;; Colors
+(set-face-attribute 'font-lock-builtin-face nil :foreground "#DAB98F")
+(set-face-attribute 'font-lock-comment-face nil :foreground "sea green")
+(set-face-attribute 'font-lock-constant-face nil :foreground "#D6D6A1")
+(set-face-attribute 'font-lock-function-name-face nil :foreground "#D6D6A1")
+(set-face-attribute 'font-lock-keyword-face nil :foreground "#569CD6")
+(set-face-attribute 'font-lock-string-face nil :foreground "#C88D75")
+(set-face-attribute 'font-lock-type-face nil :foreground "#4EC3A6")
+(set-face-attribute 'font-lock-variable-name-face nil :foreground "white")
+(set-face-attribute 'font-lock-preprocessor-face nil :foreground "#C586C0")
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(irony-extra-cmake-args nil)
+ '(package-selected-packages (quote (counsel swiper flycheck dumb-jump))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(flycheck-error ((t (:background "red1" :foreground "gray21"))))
+ '(flycheck-info ((t (:background "forest green" :foreground "burlywood3"))))
+ '(flycheck-warning ((t (:background "gold" :foreground "gray21" :underline (:color "DarkOrange" :style wave))))))
