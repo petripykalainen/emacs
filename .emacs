@@ -39,8 +39,8 @@
     (package-install package)))
 
 ;; Setup
-(add-to-list 'default-frame-alist '(font . "Dejavu Sans Mono 13"))
-(set-face-attribute 'default t :font "Dejavu Sans Mono 13")
+(add-to-list 'default-frame-alist '(font . "Dejavu Sans Mono 10"))
+(set-face-attribute 'default t :font "Dejavu Sans Mono 10")
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (set-foreground-color "white")
@@ -53,6 +53,9 @@
 ;; Bookmarks
 (setq bookmark-save-flag 1) ; everytime bookmark is changed, automatically save it
 (setq bookmark-save-flag t) ; save bookmark when emacs quits
+
+;; Makefile
+(setq makescript "./makecommand.sh")
 
 ;; Startup
 (setq inhibit-splash-screen t)
@@ -82,11 +85,12 @@
 (global-set-key (kbd "C-x C-y") 'yas-insert-snippet)
 
 (define-key global-map "\ef" 'find-file)
-(define-key global-map "\eF" 'find-file-other-window)
+(define-key global-map "\eF" 'petri-find-file-other-window)
 
 (define-key global-map "\eb" 'ivy-switch-buffer)
 (define-key global-map "\eB" 'petri-switch-buffer-other-window)
 
+(global-set-key (kbd "M-m") 'make-without-asking)
 
 ;; Defalias
 (defalias 'list-buffers 'ibuffer)
@@ -94,6 +98,12 @@
 (defalias 'query-replace 'replace-string)
 
 ;; Custom functions
+
+(defun make-without-asking ()
+  "Make the current build."
+  (interactive)
+  (compile makescript)
+  (other-window 1))
 
 (defun what-face (pos)
     (interactive "d")
@@ -343,47 +353,7 @@
 (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3")
 (set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black")
 
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" default)))
- '(irony-extra-cmake-args nil)
- '(package-selected-packages
-   (quote
-    (org-edit-latex yasnippet yasnippet-snippets counsel swiper flycheck dumb-jump))))
-;; (custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- ;; '(flycheck-error ((t (:background "red1" :foreground "gray21"))))
- ;; '(flycheck-info ((t (:background "forest green" :foreground "burlywood3"))))
- ;; '(flycheck-warning ((t (:background "gold" :foreground "gray21" :underline (:color "DarkOrange" :style wave))))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-(require 'package)
-(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                    (not (gnutls-available-p))))
-       (proto (if no-ssl "http" "https")))
-  ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
-  (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
-  ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
-  (when (< emacs-major-version 24)
-    ;; For important compatibility libraries like cl-lib
-    (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
-(package-initialize)
-
-(menu-bar-mode -1)
-(maximize-frame)
-(set-foreground-color "burlywood3")
-(set-background-color "#161616")
-(set-cursor-color "#40FF40")
+;; (menu-bar-mode -1)
+;; (set-foreground-color "burlywood3")
+;; (set-background-color "#161616")
+;; (set-cursor-color "#40FF40")
