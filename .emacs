@@ -26,9 +26,6 @@
 ;; You may delete these explanatory comments.
 (package-initialize)
 
-;; Abbrevs
-;; (load "~/.emacs.d/lisp/my-abbrev.el")
-
 ; fetch the list of packages available
 (unless package-archive-contents
   (package-refresh-contents))
@@ -37,6 +34,18 @@
 (dolist (package package-list)
   (unless (package-installed-p package)
     (package-install package)))
+
+;; Determine OS and setup
+(setq p/linux (featurep 'x))
+(setq p/win32 (not p/linux))
+
+(when p/win32
+  (setq makescript "makecommand.bat")
+)
+
+(when p/linux
+  (setq makescript "./makecommand.sh")
+)
 
 ;; Setup
 (add-to-list 'default-frame-alist '(font . "Dejavu Sans Mono 10"))
@@ -53,9 +62,6 @@
 ;; Bookmarks
 (setq bookmark-save-flag 1) ; everytime bookmark is changed, automatically save it
 (setq bookmark-save-flag t) ; save bookmark when emacs quits
-
-;; Makefile
-(setq makescript "./makecommand.sh")
 
 ;; Startup
 (setq inhibit-splash-screen t)
@@ -205,17 +211,13 @@
 ;; disable lockfiles
 (setq create-lockfiles nil)
 
-;; tabwidth
-;;(setq-default c-basic-offset 4)
-;;(setq c-default-style "linux"
-;;      c-basic-offset 4)
-
 ;; Flycheck
 (global-flycheck-mode 1)
 (flycheck-pos-tip-mode 1)
 (setq flycheck-indication-mode nil)
 (setq flycheck--idle-trigger-timer 0.3)
 (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp))
+(flycheck-irony-setup)
 
 ;; IVY
 (setq ivy-use-virtual-buffers t)
@@ -299,7 +301,6 @@
   ;; Additional style stuff
   (c-set-offset 'member-init-intro '++)
 
-
   ;; No hungry backspace
   (c-toggle-auto-hungry-state nil)
 
@@ -332,11 +333,13 @@
 (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
 
 ;; Windows performance tweaks
-(when (boundp 'w32-pipe-read-delay)
-  (setq w32-pipe-read-delay 0))
-;; Set the buffer size to 64K on Windows (from the original 4K)
-(when (boundp 'w32-pipe-buffer-size)
-  (setq irony-server-w32-pipe-buffer-size (* 64 1024)))
+(when p/win32
+  (when (boundp 'w32-pipe-read-delay)
+    (setq w32-pipe-read-delay 0))
+  ;; Set the buffer size to 64K on Windows (from the original 4K)
+  (when (boundp 'w32-pipe-buffer-size)
+    (setq irony-server-w32-pipe-buffer-size (* 64 1024)))
+)
 
 ;; Colors
 (set-face-attribute 'font-lock-builtin-face nil :foreground "#DAB98F")
@@ -352,8 +355,3 @@
 (set-face-attribute 'flycheck-error nil :background "red1" :foreground "gray")
 (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3")
 (set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black")
-
-;; (menu-bar-mode -1)
-;; (set-foreground-color "burlywood3")
-;; (set-background-color "#161616")
-;; (set-cursor-color "#40FF40")
