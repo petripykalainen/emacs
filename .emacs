@@ -81,6 +81,9 @@
 (global-set-key (kbd "M-;") 'comment-eclipse)
 (global-set-key (kbd "C-;") 'toggle-comment-on-line)
 
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+
 ;; easy keys for split windows
 (global-set-key (kbd "M-3") 'delete-other-windows)
 (global-set-key (kbd "M-4") 'split-window-below)
@@ -352,6 +355,16 @@
 (set-face-attribute 'font-lock-variable-name-face nil :foreground "white")
 (set-face-attribute 'font-lock-preprocessor-face nil :foreground "#C586C0")
 (set-face-attribute 'region nil :background 'nil)
+
 (set-face-attribute 'flycheck-error nil :background "red1" :foreground "gray")
 (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3")
 (set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black")
+(eval-after-load 'company
+  '(progn
+     (set-face-attribute 'company-tooltip nil :background "#4d4d4d" :foreground "white")
+     (set-face-attribute 'company-scrollbar-bg nil :background "#4d4d4d")
+     (set-face-attribute 'company-scrollbar-fg nil :background "#737373")
+     (set-face-attribute 'company-tooltip-annotation nil :foreground "black" :slant 'italic' :height 1.2)
+     (set-face-attribute 'company-tooltip-common nil :foreground "gold" :weight 'bold' :height 1.3)
+     (set-face-attribute 'company-tooltip-selection nil :background "#8080ff")
+     ))
