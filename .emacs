@@ -1,5 +1,5 @@
 ;; PACKAGES 
-(setq package-list '(ivy swiper flycheck flycheck-pos-tip dumb-jump company company-irony irony smart-mode-line yasnippet yasnippet-snippets))
+(setq package-list '(ivy swiper flycheck flycheck-pos-tip dumb-jump company company-irony irony smart-mode-line yasnippet yasnippet-snippets flycheck-inline))
 
 ;; MELPA
 (require 'package)
@@ -58,6 +58,7 @@
 (setq split-window-preferred-function nil)
 (global-hl-line-mode 1)
 (set-face-background 'hl-line "midnight blue")
+(setq ring-bell-function 'ignore)
 
 ;; Bookmarks
 (setq bookmark-save-flag 1) ; everytime bookmark is changed, automatically save it
@@ -218,7 +219,7 @@
 (global-flycheck-mode 1)
 (flycheck-pos-tip-mode 1)
 (setq flycheck-indication-mode nil)
-(setq flycheck--idle-trigger-timer 0.3)
+(setq flycheck--idle-trigger-timer 0.9)
 (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp))
 (flycheck-irony-setup)
 
@@ -256,6 +257,7 @@
                                     (defun-close)
                                     (inline-open)
                                     (inline-close)
+				    (brace-entry-open)
                                     (brace-list-open)
                                     (brace-list-close)
                                     (brace-list-intro)
@@ -275,6 +277,7 @@
                                     list-close-comma
                                     defun-close-semi))
     (c-offsets-alist             . ((arglist-close         .  0);c-lineup-arglist)
+				    (statement-cont        .  0)
                                     (label                 . -4)
                                     (access-label          . -4)
                                     (substatement-open     .  0)
@@ -356,15 +359,24 @@
 (set-face-attribute 'font-lock-preprocessor-face nil :foreground "#C586C0")
 (set-face-attribute 'region nil :background 'nil)
 
-(set-face-attribute 'flycheck-error nil :background "red1" :foreground "gray")
-(set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3")
-(set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black")
+(set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
+(set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3" :underline nil :weight 'bold)
+(set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black" :underline nil :weight 'bold)
+(setq pos-tip-background-color "red")
+(setq pos-tip-foreground-color "white")
+
+
 (eval-after-load 'company
   '(progn
      (set-face-attribute 'company-tooltip nil :background "#4d4d4d" :foreground "white")
      (set-face-attribute 'company-scrollbar-bg nil :background "#4d4d4d")
      (set-face-attribute 'company-scrollbar-fg nil :background "#737373")
-     (set-face-attribute 'company-tooltip-annotation nil :foreground "black" :slant 'italic' :height 1.2)
-     (set-face-attribute 'company-tooltip-common nil :foreground "gold" :weight 'bold' :height 1.3)
-     (set-face-attribute 'company-tooltip-selection nil :background "#8080ff")
-     ))
+     (set-face-attribute 'company-tooltip-annotation nil :foreground "black" :slant 'italic' :height 1.1)
+     (set-face-attribute 'company-tooltip-common nil :foreground "gold" :weight 'bold' :height 1.2)
+     (set-face-attribute 'company-tooltip-selection nil :background "#8080ff"))
+  )
+
+(eval-after-load 'dired
+  '(progn    
+     (set-face-attribute 'dired-directory nil :foreground "#66ccff" :height 1.2 :weight 'bold))
+  )
