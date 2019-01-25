@@ -1,5 +1,5 @@
 ;; PACKAGES 
-(setq package-list '(ivy swiper flycheck flycheck-pos-tip dumb-jump company company-irony irony smart-mode-line yasnippet yasnippet-snippets flycheck-inline))
+(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony smart-mode-line yasnippet yasnippet-snippets flycheck-inline web-mode rjsx-mode))
 
 ;; MELPA
 (require 'package)
@@ -81,6 +81,8 @@
 (global-set-key (kbd "C-x C-r") 'eval-region)
 (global-set-key (kbd "M-;") 'comment-eclipse)
 (global-set-key (kbd "C-;") 'toggle-comment-on-line)
+
+(global-set-key (kbd "M-u") 'mark-word)
 
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
@@ -223,6 +225,7 @@
 (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp))
 (flycheck-irony-setup)
 
+
 ;; IVY
 (setq ivy-use-virtual-buffers t)
 (setq ivy-count-format "(%d/%d) ")
@@ -338,6 +341,46 @@
 (add-hook 'objc-mode-hook 'irony-mode)
 (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
 
+;; WEB-MODE
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.js?\\'" . web-mode))
+
+;; (require 'rjsx-mode)
+;; (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
+
+(defun my-web-mode-hook ()
+  "Hooks for Web mode."
+  (setq web-mode-script-padding 4)
+  (setq web-mode-style-padding 4)
+  (setq web-mode-block-padding 4)
+  (setq web-mode-markup-indent-offset 4)
+  (setq current-coding-style 'default)
+  (setq web-mode-enable-auto-pairing t)
+  (setq web-mode-enable-css-colorization t)
+  (setq web-mode-enable-current-element-highlight t)
+  (setq web-mode-enable-auto-closing t)
+  (setq web-mode-css-indent-offset 4)
+  (setq web-mode-code-indent-offset 4)
+  (setq web-mode-indent-style 4)
+  )
+(add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 2)))
+;; (add-hook 'web-mode-hook  'my-web-mode-hook)
+(add-hook 'web-mode-hook
+  (lambda ()
+  (if (equal web-mode-content-type "javascript")
+  (web-mode-set-content-type "jsx")
+  (message "now set to: %s" web-mode-content-type)))
+  'my-web-mode-hook
+  )
+
 ;; Windows performance tweaks
 (when p/win32
   (when (boundp 'w32-pipe-read-delay)
@@ -380,3 +423,17 @@
   '(progn    
      (set-face-attribute 'dired-directory nil :foreground "#66ccff" :height 1.2 :weight 'bold))
   )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (yasnippet-snippets swiper smart-mode-line flycheck-pos-tip flycheck-inline dumb-jump company-irony))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
