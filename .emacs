@@ -351,35 +351,75 @@
 (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.js?\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+(setq web-mode-content-types-alist
+      '(("jsx" . "\\.js[x]?\\'")))
+
+
+;; disable jshint since we prefer eslint checking
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+	  '(javascript-jshint)))
+
+;; use eslint with web-mode for jsx files
+(flycheck-add-mode 'javascript-eslint 'web-mode)
+
+;; customize flycheck temp file prefix
+(setq-default flycheck-temp-prefix ".flycheck")
+
+;; disable json-jsonlist checking for json files
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+	  '(json-jsonlist)))
+
+;; use local eslint from node_modules before global
+;; http://emacs.stackexchange.com/questions/21205/flycheck-with-file-relative-eslint-executable
+(defun my/use-eslint-from-node-modules ()
+  (let* ((root (locate-dominating-file
+                (or (buffer-file-name) default-directory)
+                "node_modules"))
+         (eslint (and root
+                      (expand-file-name "node_modules/eslint/bin/eslint.js"
+                                        root))))
+    (when (and eslint (file-executable-p eslint))
+      (setq-local flycheck-javascript-eslint-executable eslint))))
+(add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
 
 ;; (require 'rjsx-mode)
 ;; (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
 
 (defun my-web-mode-hook ()
   "Hooks for Web mode."
-  (setq web-mode-script-padding 4)
-  (setq web-mode-style-padding 4)
-  (setq web-mode-block-padding 4)
-  (setq web-mode-markup-indent-offset 4)
+  (setq web-mode-script-padding 2)
+  (setq web-mode-style-padding 2)
+  (setq web-mode-block-padding 2)
+  (setq web-mode-markup-indent-offset 2)
   (setq current-coding-style 'default)
   (setq web-mode-enable-auto-pairing t)
   (setq web-mode-enable-css-colorization t)
   (setq web-mode-enable-current-element-highlight t)
   (setq web-mode-enable-auto-closing t)
-  (setq web-mode-css-indent-offset 4)
-  (setq web-mode-code-indent-offset 4)
-  (setq web-mode-indent-style 4)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-indent-style 2)
+  (setq web-mode-tag-auto-close-style t)
+  (setq web-mode-enable-auto-indentation t)
+  (setq web-mode-enable-auto-opening t)
+  ;; (setq web-mode-enable-auto-quoting t)
+  (setq web-mode-enable-auto-quoting nil)
+  (electric-pair-mode t)
   )
-(add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 2)))
-;; (add-hook 'web-mode-hook  'my-web-mode-hook)
+
+;; (add-hook 'js2-mode-hook 'my-web-mode-hook)
+(add-hook 'web-mode-hook  'my-web-mode-hook)
+
 (add-hook 'web-mode-hook
-  (lambda ()
-  (if (equal web-mode-content-type "javascript")
-  (web-mode-set-content-type "jsx")
-  (message "now set to: %s" web-mode-content-type)))
-  'my-web-mode-hook
-  )
+	  (lambda ()
+	    (if (equal web-mode-content-type "javascript")
+		(web-mode-set-content-type "jsx")
+	      (message "now set to: %s" web-mode-content-type))))
+
 
 ;; Windows performance tweaks
 (when p/win32
@@ -401,6 +441,9 @@
 (set-face-attribute 'font-lock-variable-name-face nil :foreground "white")
 (set-face-attribute 'font-lock-preprocessor-face nil :foreground "#C586C0")
 (set-face-attribute 'region nil :background 'nil)
+
+(set-face-attribute 'web-mode-html-tag-face 'nil :foreground "#569CD6")
+(set-face-attribute 'web-mode-current-element-highlight-face 'nil :foreground "purple1")
 
 (set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
 (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3" :underline nil :weight 'bold)
