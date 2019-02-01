@@ -71,6 +71,7 @@
 ;; (split-window-right)
 (bookmark-bmenu-list)
 (switch-to-buffer "*Bookmark List*")
+(toggle-frame-maximized)
 
 ;; Custom keys
 
