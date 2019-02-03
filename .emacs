@@ -1,5 +1,5 @@
 ;; PACKAGES 
-(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony smart-mode-line yasnippet yasnippet-snippets flycheck-inline web-mode rjsx-mode))
+(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony smart-mode-line yasnippet yasnippet-snippets flycheck-inline web-mode rjsx-mode js2-mode))
 
 ;; MELPA
 (require 'package)
@@ -344,27 +344,44 @@
 
 ;; WEB-MODE
 (require 'web-mode)
-(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
-(setq web-mode-content-types-alist
-      '(("jsx" . "\\.js[x]?\\'")))
 
+(add-to-list 'auto-mode-alist '("\\.erb\\'"    . web-mode))       ;; ERB
+(add-to-list 'auto-mode-alist '("\\.html?\\'"  . web-mode))       ;; Plain HTML
+(add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))       ;; JS + JSX
+(add-to-list 'auto-mode-alist '("\\.es6\\'"    . web-mode))       ;; ES6
+(add-to-list 'auto-mode-alist '("\\.css\\'"    . web-mode))       ;; CSS
+(add-to-list 'auto-mode-alist '("\\.scss\\'"   . web-mode))       ;; SCSS
+(add-to-list 'auto-mode-alist '("\\.php\\'"   . web-mode))        ;; PHP
+(add-to-list 'auto-mode-alist '("\\.blade\\.php\\'" . web-mode))  ;; Blade template
+
+(setq web-mode-content-types-alist
+      '(("jsx" . "\\.js[x]?\\'")
+        ("javascript" . "\\.es6?\\'")))
+
+(defadvice web-mode-highlight-part (around tweak-jsx activate)
+  (if (equal web-mode-content-type "jsx")
+    (let ((web-mode-enable-part-face nil))
+      ad-do-it)
+    ad-do-it))
+
+;; use web-mode for .jsx files
+(add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
+
+;; http://www.flycheck.org/manual/latest/index.html
+(require 'flycheck)
+
+;; turn on flychecking globally
+(add-hook 'after-init-hook #'global-flycheck-mode)
 
 ;; disable jshint since we prefer eslint checking
 (setq-default flycheck-disabled-checkers
   (append flycheck-disabled-checkers
-	  '(javascript-jshint)))
+    '(javascript-jshint)))
 
 ;; use eslint with web-mode for jsx files
 (flycheck-add-mode 'javascript-eslint 'web-mode)
+
+
 
 ;; customize flycheck temp file prefix
 (setq-default flycheck-temp-prefix ".flycheck")
@@ -372,7 +389,7 @@
 ;; disable json-jsonlist checking for json files
 (setq-default flycheck-disabled-checkers
   (append flycheck-disabled-checkers
-	  '(json-jsonlist)))
+    '(json-jsonlist)))
 
 ;; use local eslint from node_modules before global
 ;; http://emacs.stackexchange.com/questions/21205/flycheck-with-file-relative-eslint-executable
@@ -387,6 +404,7 @@
       (setq-local flycheck-javascript-eslint-executable eslint))))
 (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
 
+
 ;; (require 'rjsx-mode)
 ;; (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
 
@@ -396,30 +414,32 @@
   (setq web-mode-style-padding 2)
   (setq web-mode-block-padding 2)
   (setq web-mode-markup-indent-offset 2)
-  (setq current-coding-style 'default)
+  ;; (setq current-coding-style 'default)
   (setq web-mode-enable-auto-pairing t)
   (setq web-mode-enable-css-colorization t)
   (setq web-mode-enable-current-element-highlight t)
   (setq web-mode-enable-auto-closing t)
   (setq web-mode-css-indent-offset 2)
   (setq web-mode-code-indent-offset 2)
+  (setq web-mode-attr-indent-offset 2)
   (setq web-mode-indent-style 2)
   (setq web-mode-tag-auto-close-style t)
   (setq web-mode-enable-auto-indentation t)
   (setq web-mode-enable-auto-opening t)
+  (setq-default indent-tabs-mode nil)
   ;; (setq web-mode-enable-auto-quoting t)
   (setq web-mode-enable-auto-quoting nil)
   (electric-pair-mode t)
   )
 
 ;; (add-hook 'js2-mode-hook 'my-web-mode-hook)
-(add-hook 'web-mode-hook  'my-web-mode-hook)
+(add-hook 'web-mode-hook 'my-web-mode-hook)
 
-(add-hook 'web-mode-hook
-	  (lambda ()
-	    (if (equal web-mode-content-type "javascript")
-		(web-mode-set-content-type "jsx")
-	      (message "now set to: %s" web-mode-content-type))))
+;; (add-hook 'web-mode-hook
+;; 	  (lambda ()
+;; 	    (if (equal web-mode-content-type "javascript")
+;; 		(web-mode-set-content-type "jsx")
+;; 	      (message "now set to: %s" web-mode-content-type))))
 
 
 ;; Windows performance tweaks
