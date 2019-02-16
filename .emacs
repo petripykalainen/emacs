@@ -1,5 +1,5 @@
 ;; PACKAGES 
-(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony smart-mode-line yasnippet yasnippet-snippets flycheck-inline web-mode rjsx-mode js2-mode))
+(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony smart-mode-line yasnippet yasnippet-snippets flycheck-inline web-mode rjsx-mode js2-mode xah-fly-keys))
 
 ;; MELPA
 (require 'package)
@@ -54,11 +54,31 @@
 (tool-bar-mode -1)
 (set-foreground-color "white")
 (set-background-color "#1E1E1E")
-(set-cursor-color "#40FF40")
+(set-cursor-color "red")
 (setq split-window-preferred-function nil)
-(global-hl-line-mode 1)
-(set-face-background 'hl-line "midnight blue")
+;; (global-hl-line-mode 1)
+;; (set-face-background 'hl-line "midnight blue")
 (setq ring-bell-function 'ignore)
+(blink-cursor-mode 0)
+
+(require 'xah-fly-keys)
+
+(xah-fly-keys-set-layout "qwerty") ; required
+
+;; possible layout values:
+
+;; "azerty"
+;; "azerty-be"
+;; "colemak"
+;; "colemak-mod-dh"
+;; "dvorak"
+;; "programer-dvorak"
+;; "qwerty"
+;; "qwerty-abnt"
+;; "qwertz"
+;; "workman"
+
+(xah-fly-keys 1)
 
 ;; Bookmarks
 (setq bookmark-save-flag 1) ; everytime bookmark is changed, automatically save it
@@ -77,7 +97,9 @@
 
 ;;(define-key global-map "\C-r" 'kill-region)
 (define-key global-map [C-tab] 'indent-region)
-(global-set-key (kbd "C-q") 'delete-region)
+(global-set-key (kbd "M-s") 'save-buffer)
+(global-set-key (kbd "M-q") 'kill-this-buffer)
+(global-set-key (kbd "C-q") 'kill-region)
 (global-set-key (kbd "M-r") 'query-replace)
 (global-set-key (kbd "C-x C-r") 'eval-region)
 (global-set-key (kbd "M-;") 'comment-eclipse)
@@ -97,20 +119,302 @@
 
 (global-set-key (kbd "C-x C-y") 'yas-insert-snippet)
 
+;; Find files/Switch buffer
 (define-key global-map "\ef" 'find-file)
 (define-key global-map "\eF" 'petri-find-file-other-window)
 
 (define-key global-map "\eb" 'ivy-switch-buffer)
 (define-key global-map "\eB" 'petri-switch-buffer-other-window)
 
-(global-set-key (kbd "M-m") 'make-without-asking)
+
+;;(global-set-key (kbd "M-m") 'make-without-asking)
+
+;; movement
+;; http://ergoemacs.org/emacs/emacs_useful_user_keybinding.html
+(global-set-key (kbd "M-i") 'previous-line)
+(global-set-key (kbd "M-j") 'backward-char)
+(global-set-key (kbd "M-k") 'next-line)
+(global-set-key (kbd "M-l") 'forward-char)
+
+(global-set-key (kbd "M-u") 'backward-word)
+(global-set-key (kbd "M-o") 'forward-word)
+
+(global-set-key (kbd "<C-up>") 'xah-backward-block)
+(global-set-key (kbd "<C-down>") 'xah-forward-block)
+
+(global-set-key (kbd "C-a") 'xah-beginning-of-line-or-block)
+(global-set-key (kbd "C-e") 'xah-end-of-line-or-block)
+(define-key xah-fly-key-map (kbd "M-h") 'xah-end-of-line-or-block)
+
+(global-set-key (kbd "M-6") 'xah-select-block)
+(global-set-key (kbd "M-7") 'xah-select-line)
+(global-set-key (kbd "M-8") 'xah-extend-selection)
+
 
 ;; Defalias
 (defalias 'list-buffers 'ibuffer)
 (defalias 'isearch-forward 'swiper)
 (defalias 'query-replace 'replace-string)
 
+
 ;; Custom functions
+
+(defun xah-select-block ()
+  "Select the current/next block of text between blank lines.
+If region is active, extend selection downward by block.
+
+URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
+Version 2017-11-01"
+  (interactive)
+  (if (region-active-p)
+      (re-search-forward "\n[ \t]*\n" nil "move")
+    (progn
+      (skip-chars-forward " \n\t")
+      (when (re-search-backward "\n[ \t]*\n" nil "move")
+        (re-search-forward "\n[ \t]*\n"))
+      (push-mark (point) t t)
+      (re-search-forward "\n[ \t]*\n" nil "move"))))
+
+
+(defun xah-select-line ()
+  "Select current line. If region is active, extend selection downward by line.
+URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
+Version 2017-11-01"
+  (interactive)
+  (if (region-active-p)
+      (progn
+        (forward-line 1)
+        (end-of-line))
+    (progn
+      (end-of-line)
+      (set-mark (line-beginning-position)))))
+
+
+(defun xah-extend-selection ()
+  "Select the current word, bracket/quote expression, or expand selection.
+Subsequent calls expands the selection.
+
+when no selection,
+• if cursor is on a bracket, select whole bracketed thing including bracket
+• if cursor is on a quote, select whole quoted thing including quoted
+• if cursor is on the beginning of line, select the line.
+• else, select current word.
+
+when there's a selection, the selection extension behavior is still experimental.
+Roughly:
+• if 1 line is selected, extend to next line.
+• if multiple lines is selected, extend to next line.
+• if a bracketed text is selected, extend to include the outer bracket. If there's no outer, select current line.
+
+ to line, or bracket/quoted text,
+or text block, whichever is the smallest.
+
+URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
+Version 2017-01-15"
+  (interactive)
+  (if (region-active-p)
+      (progn
+        (let (($rb (region-beginning)) ($re (region-end)))
+          (goto-char $rb)
+          (cond
+           ((looking-at "\\s(")
+            (if (eq (nth 0 (syntax-ppss)) 0)
+                (progn
+                  (message "left bracket, depth 0.")
+                  (end-of-line) ; select current line
+                  (set-mark (line-beginning-position)))
+              (progn
+                (message "left bracket, depth not 0")
+                (up-list -1 t t)
+                (mark-sexp))))
+           ((eq $rb (line-beginning-position))
+            (progn
+              (goto-char $rb)
+              (let (($firstLineEndPos (line-end-position)))
+                (cond
+                 ((eq $re $firstLineEndPos)
+                  (progn
+                    (message "exactly 1 line. extend to next whole line." )
+                    (forward-line 1)
+                    (end-of-line)))
+                 ((< $re $firstLineEndPos)
+                  (progn
+                    (message "less than 1 line. complete the line." )
+                    (end-of-line)))
+                 ((> $re $firstLineEndPos)
+                  (progn
+                    (message "beginning of line, but end is greater than 1st end of line" )
+                    (goto-char $re)
+                    (if (eq (point) (line-end-position))
+                        (progn
+                          (message "exactly multiple lines" )
+                          (forward-line 1)
+                          (end-of-line))
+                      (progn
+                        (message "multiple lines but end is not eol. make it so" )
+                        (goto-char $re)
+                        (end-of-line)))))
+                 (t (error "logic error 42946" ))))))
+           ((and (> (point) (line-beginning-position)) (<= (point) (line-end-position)))
+            (progn
+              (message "less than 1 line" )
+              (end-of-line) ; select current line
+              (set-mark (line-beginning-position))))
+           (t (message "last resort" ) nil))))
+    (progn
+      (cond
+       ((looking-at "\\s(")
+        (message "left bracket")
+        (mark-sexp)) ; left bracket
+       ((looking-at "\\s)")
+        (message "right bracket")
+        (backward-up-list) (mark-sexp))
+       ((looking-at "\\s\"")
+        (message "string quote")
+        (mark-sexp)) ; string quote
+       ((and (eq (point) (line-beginning-position)) (not (looking-at "\n")))
+        (message "beginning of line and not empty")
+        (end-of-line)
+        (set-mark (line-beginning-position)))
+       ((or (looking-back "\\s_" 1) (looking-back "\\sw" 1))
+        (message "left is word or symbol")
+        (skip-syntax-backward "_w" )
+        ;; (re-search-backward "^\\(\\sw\\|\\s_\\)" nil t)
+        (mark-sexp))
+       ((and (looking-at "\\s ") (looking-back "\\s " 1))
+        (message "left and right both space" )
+        (skip-chars-backward "\\s " ) (set-mark (point))
+        (skip-chars-forward "\\s "))
+       ((and (looking-at "\n") (looking-back "\n" 1))
+        (message "left and right both newline")
+        (skip-chars-forward "\n")
+        (set-mark (point))
+        (re-search-forward "\n[ \t]*\n")) ; between blank lines, select next text block
+       (t (message "just mark sexp" )
+          (mark-sexp))
+       ;;
+       ))))
+
+
+
+(defvar xah-brackets nil "string of left/right brackets pairs.")
+(setq xah-brackets "()[]{}<>（）［］｛｝⦅⦆〚〛⦃⦄“”‘’‹›«»「」〈〉《》【】〔〕⦗⦘『』〖〗〘〙｢｣⟦⟧⟨⟩⟪⟫⟮⟯⟬⟭⌈⌉⌊⌋⦇⦈⦉⦊❛❜❝❞❨❩❪❫❴❵❬❭❮❯❰❱❲❳〈〉⦑⦒⧼⧽﹙﹚﹛﹜﹝﹞⁽⁾₍₎⦋⦌⦍⦎⦏⦐⁅⁆⸢⸣⸤⸥⟅⟆⦓⦔⦕⦖⸦⸧⸨⸩｟｠⧘⧙⧚⧛⸜⸝⸌⸍⸂⸃⸄⸅⸉⸊᚛᚜༺༻༼༽⏜⏝⎴⎵⏞⏟⏠⏡﹁﹂﹃﹄︹︺︻︼︗︘︿﹀︽︾﹇﹈︷︸")
+
+(defvar xah-left-brackets '("(" "{" "[" "<" "〔" "【" "〖" "〈" "《" "「" "『" "“" "‘" "‹" "«" )
+  "List of left bracket chars.")
+(progn
+;; make xah-left-brackets based on xah-brackets
+  (setq xah-left-brackets '())
+  (dotimes ($x (- (length xah-brackets) 1))
+    (when (= (% $x 2) 0)
+      (push (char-to-string (elt xah-brackets $x))
+            xah-left-brackets)))
+  (setq xah-left-brackets (reverse xah-left-brackets)))
+
+(defvar xah-right-brackets '(")" "]" "}" ">" "〕" "】" "〗" "〉" "》" "」" "』" "”" "’" "›" "»")
+  "list of right bracket chars.")
+(progn
+  (setq xah-right-brackets '())
+  (dotimes ($x (- (length xah-brackets) 1))
+    (when (= (% $x 2) 1)
+      (push (char-to-string (elt xah-brackets $x))
+            xah-right-brackets)))
+  (setq xah-right-brackets (reverse xah-right-brackets)))
+
+(defun xah-backward-left-bracket ()
+  "Move cursor to the previous occurrence of left bracket.
+The list of brackets to jump to is defined by `xah-left-brackets'.
+URL `http://ergoemacs.org/emacs/emacs_navigating_keys_for_brackets.html'
+Version 2015-10-01"
+  (interactive)
+  (re-search-backward (regexp-opt xah-left-brackets) nil t))
+
+(defun xah-forward-right-bracket ()
+  "Move cursor to the next occurrence of right bracket.
+The list of brackets to jump to is defined by `xah-right-brackets'.
+URL `http://ergoemacs.org/emacs/emacs_navigating_keys_for_brackets.html'
+Version 2015-10-01"
+  (interactive)
+  (re-search-forward (regexp-opt xah-right-brackets) nil t))
+
+(defun xah-goto-matching-bracket ()
+  "Move cursor to the matching bracket.
+If cursor is not on a bracket, call `backward-up-list'.
+The list of brackets to jump to is defined by `xah-left-brackets' and `xah-right-brackets'.
+URL `http://ergoemacs.org/emacs/emacs_navigating_keys_for_brackets.html'
+Version 2016-11-22"
+  (interactive)
+  (if (nth 3 (syntax-ppss))
+      (backward-up-list 1 'ESCAPE-STRINGS 'NO-SYNTAX-CROSSING)
+    (cond
+     ((eq (char-after) ?\") (forward-sexp))
+     ((eq (char-before) ?\") (backward-sexp ))
+     ((looking-at (regexp-opt xah-left-brackets))
+      (forward-sexp))
+     ((looking-back (regexp-opt xah-right-brackets) (max (- (point) 1) 1))
+      (backward-sexp))
+     (t (backward-up-list 1 'ESCAPE-STRINGS 'NO-SYNTAX-CROSSING)))))
+
+(defun xah-forward-block (&optional n)
+  "Move cursor beginning of next text block.
+A text block is separated by blank lines.
+This command similar to `forward-paragraph', but this command's behavior is the same regardless of syntax table.
+URL `http://ergoemacs.org/emacs/emacs_move_by_paragraph.html'
+Version 2016-06-15"
+  (interactive "p")
+  (let ((n (if (null n) 1 n)))
+    (re-search-forward "\n[\t\n ]*\n+" nil "NOERROR" n)))
+
+(defun xah-backward-block (&optional n)
+  "Move cursor to previous text block.
+See: `xah-forward-block'
+URL `http://ergoemacs.org/emacs/emacs_move_by_paragraph.html'
+Version 2016-06-15"
+  (interactive "p")
+  (let ((n (if (null n) 1 n))
+        ($i 1))
+    (while (<= $i n)
+      (if (re-search-backward "\n[\t\n ]*\n+" nil "NOERROR")
+          (progn (skip-chars-backward "\n\t "))
+        (progn (goto-char (point-min))
+               (setq $i n)))
+      (setq $i (1+ $i)))))
+(defun xah-beginning-of-line-or-block ()
+  "Move cursor to beginning of line or previous paragraph.
+
+• When called first time, move cursor to beginning of char in current line. (if already, move to beginning of line.)
+• When called again, move cursor backward by jumping over any sequence of whitespaces containing 2 blank lines.
+
+URL `http://ergoemacs.org/emacs/emacs_keybinding_design_beginning-of-line-or-block.html'
+Version 2017-05-13"
+  (interactive)
+  (let (($p (point)))
+    (if (or (equal (point) (line-beginning-position))
+            (equal last-command this-command ))
+        (if (re-search-backward "\n[\t\n ]*\n+" nil "NOERROR")
+            (progn
+              (skip-chars-backward "\n\t ")
+              (forward-char ))
+          (goto-char (point-min)))
+      (progn
+        (back-to-indentation)
+        (when (eq $p (point))
+          (beginning-of-line))))))
+
+(defun xah-end-of-line-or-block ()
+  "Move cursor to end of line or next paragraph.
+
+• When called first time, move cursor to end of line.
+• When called again, move cursor forward by jumping over any sequence of whitespaces containing 2 blank lines.
+
+URL `http://ergoemacs.org/emacs/emacs_keybinding_design_beginning-of-line-or-block.html'
+Version 2017-05-30"
+  (interactive)
+  (if (or (equal (point) (line-end-position))
+          (equal last-command this-command ))
+      (progn
+        (re-search-forward "\n[\t\n ]*\n+" nil "NOERROR" ))
+    (end-of-line)))
 
 (defun make-without-asking ()
   "Make the current build."
@@ -381,8 +685,6 @@
 ;; use eslint with web-mode for jsx files
 (flycheck-add-mode 'javascript-eslint 'web-mode)
 
-
-
 ;; customize flycheck temp file prefix
 (setq-default flycheck-temp-prefix ".flycheck")
 
@@ -434,6 +736,9 @@
 
 ;; (add-hook 'js2-mode-hook 'my-web-mode-hook)
 (add-hook 'web-mode-hook 'my-web-mode-hook)
+;; (add-hook 'web-mode-hook
+;;           (lambda()
+;;             (global-unset-key (kbd "M-j"))))
 
 ;; (add-hook 'web-mode-hook
 ;; 	  (lambda ()
@@ -461,10 +766,10 @@
 (set-face-attribute 'font-lock-type-face nil :foreground "#4EC3A6")
 (set-face-attribute 'font-lock-variable-name-face nil :foreground "white")
 (set-face-attribute 'font-lock-preprocessor-face nil :foreground "#C586C0")
-(set-face-attribute 'region nil :background 'nil)
+(set-face-attribute 'region nil :background "#766EC8")
 
 (set-face-attribute 'web-mode-html-tag-face 'nil :foreground "#569CD6")
-(set-face-attribute 'web-mode-current-element-highlight-face 'nil :foreground "purple1")
+(set-face-attribute 'web-mode-current-element-highlight-face 'nil :foreground "set")
 
 (set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
 (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3" :underline nil :weight 'bold)
@@ -494,7 +799,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (yasnippet-snippets swiper smart-mode-line flycheck-pos-tip flycheck-inline dumb-jump company-irony))))
+    (xah-fly-keys yasnippet-snippets swiper smart-mode-line flycheck-pos-tip flycheck-inline dumb-jump company-irony))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
