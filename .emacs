@@ -48,8 +48,8 @@
 )
 
 ;; Setup
-(add-to-list 'default-frame-alist '(font . "Dejavu Sans Mono 10"))
-(set-face-attribute 'default t :font "Dejavu Sans Mono 10")
+(set-face-attribute 'default nil :font "Dejavu Sans Mono 10" )
+(set-frame-font "Dejavu Sans Mono 10" nil t)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (set-foreground-color "white")
@@ -131,13 +131,13 @@
 
 ;; movement
 ;; http://ergoemacs.org/emacs/emacs_useful_user_keybinding.html
-(global-set-key (kbd "M-i") 'previous-line)
-(global-set-key (kbd "M-j") 'backward-char)
-(global-set-key (kbd "M-k") 'next-line)
-(global-set-key (kbd "M-l") 'forward-char)
+;; (global-set-key (kbd "M-i") 'previous-line)
+;; (global-set-key (kbd "M-j") 'backward-char)
+;; (global-set-key (kbd "M-k") 'next-line)
+;; (global-set-key (kbd "M-l") 'forward-char)
 
-(global-set-key (kbd "M-u") 'backward-word)
-(global-set-key (kbd "M-o") 'forward-word)
+;; (global-set-key (kbd "M-u") 'backward-word)
+;; (global-set-key (kbd "M-o") 'forward-word)
 
 (global-set-key (kbd "<C-up>") 'xah-backward-block)
 (global-set-key (kbd "<C-down>") 'xah-forward-block)
@@ -146,9 +146,9 @@
 (global-set-key (kbd "C-e") 'xah-end-of-line-or-block)
 (define-key xah-fly-key-map (kbd "M-h") 'xah-end-of-line-or-block)
 
-(global-set-key (kbd "M-6") 'xah-select-block)
-(global-set-key (kbd "M-7") 'xah-select-line)
-(global-set-key (kbd "M-8") 'xah-extend-selection)
+;; (global-set-key (kbd "M-6") 'xah-select-block)
+;; (global-set-key (kbd "M-7") 'xah-select-line)
+;; (global-set-key (kbd "M-8") 'xah-extend-selection)
 
 
 ;; Defalias
