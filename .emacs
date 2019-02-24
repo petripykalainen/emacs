@@ -48,18 +48,27 @@
 )
 
 ;; Setup
-(set-face-attribute 'default nil :font "Dejavu Sans Mono 10" )
-(set-frame-font "Dejavu Sans Mono 10" nil t)
+(set-face-attribute 'default nil :font "Dejavu Sans Mono 11" )
+(set-frame-font "Dejavu Sans Mono 11" nil t)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (set-foreground-color "white")
 (set-background-color "#1E1E1E")
 (setq split-window-preferred-function nil)
 (global-hl-line-mode 1)
-(set-cursor-color "red")
-(set-face-background 'hl-line "midnight blue")
+;; (set-cursor-color "red")
+;; (set-face-background 'hl-line "midnight blue")
 (setq ring-bell-function 'ignore)
 (blink-cursor-mode 0)
+
+(defun pjr-font-scale-on-frame-width ()
+  (if (< (frame-width) 76)
+      (text-scale-set -1.1)
+    (text-scale-set 0))
+  )
+
+(add-hook 'window-configuration-change-hook 'pjr-font-scale-on-frame-width)
+
 
 (require 'xah-fly-keys)
 
@@ -144,7 +153,7 @@
 
 (global-set-key (kbd "C-a") 'xah-beginning-of-line-or-block)
 (global-set-key (kbd "C-e") 'xah-end-of-line-or-block)
-(define-key xah-fly-key-map (kbd "M-h") 'xah-end-of-line-or-block)
+;; (define-key xah-fly-key-map (kbd "M-h") 'xah-end-of-line-or-block)
 
 ;; (global-set-key (kbd "M-6") 'xah-select-block)
 ;; (global-set-key (kbd "M-7") 'xah-select-line)
@@ -638,7 +647,8 @@ Version 2017-05-30"
 (setq company-idle-delay 0)
 (add-hook 'after-init-hook 'global-company-mode)
 (eval-after-load 'company
-  '(add-to-list 'company-backends 'company-irony))
+  '(add-to-list 'company-backends 
+                'company-irony))
 
 ;; IRONY
 (add-hook 'c++-mode-hook 'irony-mode)
@@ -721,7 +731,15 @@ Version 2017-05-30"
   (setq web-mode-enable-css-colorization t)
   (setq web-mode-enable-current-element-highlight t)
   (setq web-mode-enable-auto-closing t)
-  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-css-indent-offset 4)
+  (set-face-attribute 'web-mode-css-property-name-face nil :foreground "pink2")
+  (set (make-local-variable
+        'company-backends) '((
+                              ;; company-web-html
+                              company-css
+                              ;; company-dabbrev-code
+                              ;; company-dabbrev
+                              )))
   (setq web-mode-code-indent-offset 2)
   (setq web-mode-attr-indent-offset 2)
   (setq web-mode-indent-style 2)
@@ -768,16 +786,18 @@ Version 2017-05-30"
 (set-face-attribute 'font-lock-preprocessor-face nil :foreground "#C586C0")
 (set-face-attribute 'region nil :background "#766EC8")
 
+;;Webmode
 (set-face-attribute 'web-mode-html-tag-face 'nil :foreground "#569CD6")
 (set-face-attribute 'web-mode-current-element-highlight-face 'nil :foreground "set")
 
+;; Flycheck
 (set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
 (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3" :underline nil :weight 'bold)
 (set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black" :underline nil :weight 'bold)
 (setq pos-tip-background-color "red")
 (setq pos-tip-foreground-color "white")
 
-
+;;Company
 (eval-after-load 'company
   '(progn
      (set-face-attribute 'company-tooltip nil :background "#4d4d4d" :foreground "white")
@@ -788,6 +808,7 @@ Version 2017-05-30"
      (set-face-attribute 'company-tooltip-selection nil :background "#8080ff"))
   )
 
+;; Dired
 (eval-after-load 'dired
   '(progn    
      (set-face-attribute 'dired-directory nil :foreground "#66ccff" :height 1.2 :weight 'bold))
