@@ -1,5 +1,5 @@
 ;; PACKAGES 
-(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony smart-mode-line yasnippet yasnippet-snippets flycheck-inline web-mode rjsx-mode js2-mode xah-fly-keys))
+(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony smart-mode-line yasnippet yasnippet-snippets flycheck-inline web-mode rjsx-mode js2-mode xah-fly-keys company-tern tide emmet-mode))
 
 ;; MELPA
 (require 'package)
@@ -643,12 +643,13 @@ Version 2017-05-30"
 (add-hook 'c-mode-common-hook 'petri-c-hook)
 
 ;; Company-mode
+(require 'company)
+;; (require 'company-tern)
 (setq company-dabbrev-downcase 0)
 (setq company-idle-delay 0)
 (add-hook 'after-init-hook 'global-company-mode)
 (eval-after-load 'company
-  '(add-to-list 'company-backends 
-                'company-irony))
+  '(add-to-list 'company-backends 'company-irony))
 
 ;; IRONY
 (add-hook 'c++-mode-hook 'irony-mode)
@@ -660,6 +661,7 @@ Version 2017-05-30"
 (require 'web-mode)
 
 (add-to-list 'auto-mode-alist '("\\.erb\\'"    . web-mode))       ;; ERB
+(add-to-list 'auto-mode-alist '("\\.json\\'"   . web-mode))       ;; JSON
 (add-to-list 'auto-mode-alist '("\\.html?\\'"  . web-mode))       ;; Plain HTML
 (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))       ;; JS + JSX
 (add-to-list 'auto-mode-alist '("\\.es6\\'"    . web-mode))       ;; ES6
@@ -720,6 +722,55 @@ Version 2017-05-30"
 ;; (require 'rjsx-mode)
 ;; (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
 
+;; Emmet
+(setq emmet-expand-jsx-className? t) ;; default nil
+
+;; TIDE
+(defun setup-tide-mode ()
+  (interactive)
+  (tide-setup)
+  (flycheck-mode +1)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (eldoc-mode +1)
+  (tide-hl-identifier-mode +1)
+  ;; company is an optional dependency. You have to
+  ;; install it separately via package-install
+  ;; `M-x package-install [ret] company`
+  (company-mode +1))
+
+;; aligns annotation to the right hand side
+;; (setq company-tooltip-align-annotations t)
+
+;; formats the buffer before saving
+(add-hook 'before-save-hook 'tide-format-before-save)
+
+(add-hook 'typescript-mode-hook #'setup-tide-mode)
+
+(require 'web-mode)
+;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+(add-hook 'web-mode-hook
+          (lambda ()
+            (when (string-equal "jsx" (file-name-extension buffer-file-name))
+              (setup-tide-mode))))
+;; configure jsx-tide checker to run after your default jsx checker
+(flycheck-add-mode 'javascript-eslint 'web-mode)
+;; (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
+ ;
+;; TSX
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
+(add-hook 'web-mode-hook
+          (lambda ()
+            (when (string-equal "tsx" (file-name-extension buffer-file-name))
+              (setup-tide-mode))))
+;; enable typescript-tslint checker
+(flycheck-add-mode 'typescript-tslint 'web-mode)
+
+(add-hook 'web-mode-hook #'setup-tide-mode)
+;; configure javascript-tide checker to run after your default javascript checker
+;; (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)
+(setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(tsx-tide)))
+
 (defun my-web-mode-hook ()
   "Hooks for Web mode."
   (setq web-mode-script-padding 2)
@@ -731,15 +782,10 @@ Version 2017-05-30"
   (setq web-mode-enable-css-colorization t)
   (setq web-mode-enable-current-element-highlight t)
   (setq web-mode-enable-auto-closing t)
-  (setq web-mode-css-indent-offset 4)
+  (setq web-mode-css-indent-offset 2)
   (set-face-attribute 'web-mode-css-property-name-face nil :foreground "pink2")
-  (set (make-local-variable
-        'company-backends) '((
-                              ;; company-web-html
-                              company-css
-                              ;; company-dabbrev-code
-                              ;; company-dabbrev
-                              )))
+  ;; (set (make-local-variable 'company-backends)
+       ;; '((company-css company-files)))
   (setq web-mode-code-indent-offset 2)
   (setq web-mode-attr-indent-offset 2)
   (setq web-mode-indent-style 2)
@@ -754,6 +800,10 @@ Version 2017-05-30"
 
 ;; (add-hook 'js2-mode-hook 'my-web-mode-hook)
 (add-hook 'web-mode-hook 'my-web-mode-hook)
+;; (add-hook 'web-mode-hook 'tern-mode t)
+(add-hook 'web-mode-hook 'emmet-mode)
+
+
 ;; (add-hook 'web-mode-hook
 ;;           (lambda()
 ;;             (global-unset-key (kbd "M-j"))))
