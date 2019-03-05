@@ -558,6 +558,9 @@ Version 2017-05-30"
 ;; (setq sml/name-width 20)
 ;; (sml/setup)
 
+;;Powerline
+(powerline-default-theme)
+
 ;; Yasnippet
 (setq yas-wrap-around-region t)
 (yas-global-mode 1)
