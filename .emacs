@@ -1,5 +1,5 @@
 ;; PACKAGES 
-(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony smart-mode-line yasnippet yasnippet-snippets flycheck-inline web-mode rjsx-mode js2-mode xah-fly-keys company-tern tide emmet-mode))
+(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline smart-mode-line smart-mode-line-powerline-theme yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode))
 
 ;; MELPA
 (require 'package)
@@ -57,17 +57,20 @@
 (setq split-window-preferred-function nil)
 (global-hl-line-mode 1)
 ;; (set-cursor-color "red")
-;; (set-face-background 'hl-line "midnight blue")
+(set-face-background 'hl-line "midnight blue")
 (setq ring-bell-function 'ignore)
 (blink-cursor-mode 0)
+(require 'vc)
+(eval-after-load "vc" '(remove-hook 'find-file-hook 'vc-find-file-hook))
+(setq vc-handled-backends nil)
 
-(defun pjr-font-scale-on-frame-width ()
-  (if (< (frame-width) 76)
-      (text-scale-set -1.1)
-    (text-scale-set 0))
-  )
+;; (defun pjr-font-scale-on-frame-width ()
+;;   (if (< (frame-width) 76)
+;;       (text-scale-set -1.1)
+;;     (text-scale-set 0))
+;;   )
 
-(add-hook 'window-configuration-change-hook 'pjr-font-scale-on-frame-width)
+;; (add-hook 'window-configuration-change-hook 'pjr-font-scale-on-frame-width)
 
 
 (require 'xah-fly-keys)
@@ -549,9 +552,11 @@ Version 2017-05-30"
 (dumb-jump-mode 1)
 
 ;; smart mode line
-(setq sml/theme 'dark)
-(setq sml/no-confirm-load-theme t)
-(sml/setup)
+;; (setq sml/theme 'powerline)
+;; (setq sml/no-confirm-load-theme t)
+;; (setq sml/mode-width 30)
+;; (setq sml/name-width 20)
+;; (sml/setup)
 
 ;; Yasnippet
 (setq yas-wrap-around-region t)
@@ -659,13 +664,14 @@ Version 2017-05-30"
 
 ;; WEB-MODE
 (require 'web-mode)
+(setq css-indent-offset 2)
 
 (add-to-list 'auto-mode-alist '("\\.erb\\'"    . web-mode))       ;; ERB
 (add-to-list 'auto-mode-alist '("\\.json\\'"   . web-mode))       ;; JSON
 (add-to-list 'auto-mode-alist '("\\.html?\\'"  . web-mode))       ;; Plain HTML
 (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))       ;; JS + JSX
 (add-to-list 'auto-mode-alist '("\\.es6\\'"    . web-mode))       ;; ES6
-(add-to-list 'auto-mode-alist '("\\.css\\'"    . web-mode))       ;; CSS
+;; (add-to-list 'auto-mode-alist '("\\.css\\'"    . web-mode))       ;; CSS
 (add-to-list 'auto-mode-alist '("\\.scss\\'"   . web-mode))       ;; SCSS
 (add-to-list 'auto-mode-alist '("\\.php\\'"   . web-mode))        ;; PHP
 (add-to-list 'auto-mode-alist '("\\.blade\\.php\\'" . web-mode))  ;; Blade template
@@ -716,6 +722,7 @@ Version 2017-05-30"
                                         root))))
     (when (and eslint (file-executable-p eslint))
       (setq-local flycheck-javascript-eslint-executable eslint))))
+
 (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
 
 
@@ -742,20 +749,29 @@ Version 2017-05-30"
 ;; (setq company-tooltip-align-annotations t)
 
 ;; formats the buffer before saving
-(add-hook 'before-save-hook 'tide-format-before-save)
+;; (add-hook 'before-save-hook 'tide-format-before-save)
 
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
 
 (require 'web-mode)
-;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+
 (add-hook 'web-mode-hook
           (lambda ()
-            (when (string-equal "jsx" (file-name-extension buffer-file-name))
-              (setup-tide-mode))))
+            (when (string-equal (or "js" "jsx") (file-name-extension buffer-file-name))
+              (setup-tide-mode)
+              )))
+
+(defun petri-web-save-and-format ()
+  "Runs formatting based on file type (html or js)"
+  (interactive)
+  (if (not (string-equal "html" (file-name-extension buffer-file-name)))
+      (tide-format)
+    (web-mode-buffer-indent)))
+
 ;; configure jsx-tide checker to run after your default jsx checker
-(flycheck-add-mode 'javascript-eslint 'web-mode)
+;; (flycheck-add-mode 'javascript-eslint 'web-mode)
 ;; (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
- ;
+
 ;; TSX
 (require 'web-mode)
 (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
@@ -773,6 +789,7 @@ Version 2017-05-30"
 
 (defun my-web-mode-hook ()
   "Hooks for Web mode."
+  (add-hook 'before-save-hook #'petri-web-save-and-format)
   (setq web-mode-script-padding 2)
   (setq web-mode-style-padding 2)
   (setq web-mode-block-padding 2)
@@ -786,6 +803,7 @@ Version 2017-05-30"
   (set-face-attribute 'web-mode-css-property-name-face nil :foreground "pink2")
   ;; (set (make-local-variable 'company-backends)
        ;; '((company-css company-files)))
+  (setq company-backends '((company-capf company-dabbrev-code company-files company-css company-tide)))
   (setq web-mode-code-indent-offset 2)
   (setq web-mode-attr-indent-offset 2)
   (setq web-mode-indent-style 2)
@@ -802,6 +820,7 @@ Version 2017-05-30"
 (add-hook 'web-mode-hook 'my-web-mode-hook)
 ;; (add-hook 'web-mode-hook 'tern-mode t)
 (add-hook 'web-mode-hook 'emmet-mode)
+(add-hook 'css-mode-hook 'emmet-mode)
 
 
 ;; (add-hook 'web-mode-hook
@@ -863,6 +882,7 @@ Version 2017-05-30"
   '(progn    
      (set-face-attribute 'dired-directory nil :foreground "#66ccff" :height 1.2 :weight 'bold))
   )
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
