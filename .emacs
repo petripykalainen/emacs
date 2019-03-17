@@ -1,6 +1,6 @@
 (setq gc-cons-threshold 100000000)
 (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 800000)))
-(load "~/.emacs.d/lisp/my-abbrev.el")
+;;(load "~/.emacs.d/lisp/my-abbrev.el")
 
 (require 'package)
 (setq package-enable-at-startup nil)
@@ -97,6 +97,9 @@
   (defalias 'list-buffers 'ibuffer)
   (defalias 'isearch-forward 'swiper)
   (defalias 'query-replace 'replace-string)
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
+  (setq-default tab-always-indent nil)
 )
 
 (use-package xah-fly-keys
@@ -157,10 +160,17 @@
   (global-set-key (kbd "C-e") 'xah-end-of-line-or-block)
 )
 
+(defun petri-conf-mode-hook ()
+  (setq c-basic-offset 2)
+  ;;(setq-default tab-width 2)
+)
+
 ;; Init hook
 ;; (add-hook 'after-init-hook #'my-package-init)
 (add-hook 'after-init-hook #'petri-general-settings)
 (add-hook 'after-init-hook #'petri-keybind-hook)
+
+(add-hook 'conf-mode-hook #'petri-conf-mode-hook)
 
 ;; Custom functions
 
