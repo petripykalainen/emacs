@@ -1,8 +1,12 @@
+(setq gc-cons-threshold 100000000)
+(add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 800000)))
+(load "~/.emacs.d/lisp/my-abbrev.el")
+
 (require 'package)
 (setq package-enable-at-startup nil)
 
 ;; PACKAGES 
-(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line smart-mode-line-powerline-theme js2-mode rjsx-mode use-package))
+(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line smart-mode-line-powerline-theme js2-mode rjsx-mode use-package xah-find))
 ;; MELPA
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
@@ -27,7 +31,6 @@
 ;; You may delete these explanatory comments.
 (package-initialize)
 
-
 (unless package-archive-contents
   (package-refresh-contents))
 ;; install the missing packages
@@ -44,6 +47,8 @@
 
 ;; Setup
 (defun petri-general-settings ()
+  (when (version<= "26.0.50" emacs-version )
+  (global-display-line-numbers-mode))
   ;; Bigger undo
   (setq undo-limit 20000000)
   (setq undo-strong-limit 40000000)
@@ -68,13 +73,13 @@
   (show-paren-mode 1)
   (set-foreground-color "white")
   (set-background-color "#1E1E1E")
-  (setq split-window-preferred-function nil)
+  ;; (setq split-window-preferred-function nil)
   (global-hl-line-mode 1)
   ;; (set-cursor-color "red")
   (set-face-background 'hl-line "midnight blue")
   (setq ring-bell-function 'ignore)
   (blink-cursor-mode 0)
-  (require 'vc)
+  ;; (require 'vc)
   (eval-after-load "vc" '(remove-hook 'find-file-hook 'vc-find-file-hook))
   (setq vc-handled-backends nil)
   ;; Bookmarks
@@ -238,12 +243,17 @@
 		(append flycheck-disabled-checkers
 			'(json-jsonlist)))
   (add-hook 'after-init-hook #'global-flycheck-mode)
+  (set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
+  (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3" :underline nil :weight 'bold)
+  (set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black" :underline nil :weight 'bold)
 )
 
 (use-package flycheck-pos-tip
   :ensure t
   :config
   (flycheck-pos-tip-mode 1)
+  (setq pos-tip-background-color "red")
+  (setq pos-tip-foreground-color "white") 
 )
 
 (use-package flycheck-irony
@@ -402,6 +412,12 @@
   (setq company-tooltip-align-annotations t)
   :config
   (add-hook 'after-init-hook 'global-company-mode)
+  (set-face-attribute 'company-tooltip nil :background "#4d4d4d" :foreground "white")
+  (set-face-attribute 'company-scrollbar-bg nil :background "#4d4d4d")
+  (set-face-attribute 'company-scrollbar-fg nil :background "#737373")
+  (set-face-attribute 'company-tooltip-annotation nil :foreground "black" :slant 'italic' :height 1.1)
+  (set-face-attribute 'company-tooltip-common nil :foreground "gold" :weight 'bold' :height 1.2)
+  (set-face-attribute 'company-tooltip-selection nil :background "#8080ff")
 ) 
 
 ;; IRONY
@@ -418,7 +434,6 @@
   )
 
 ;; WEB-MODE
-(require 'web-mode)
 (use-package web-mode
   :ensure t
   :config
@@ -430,7 +445,7 @@
   (add-to-list 'auto-mode-alist '("\\.php\\'"   . web-mode))        ;; PHP
   (add-to-list 'auto-mode-alist '("\\.blade\\.php\\'" . web-mode))  ;; Blade template
   (add-hook 'web-mode-hook 'my-web-mode-hook)
-  (add-hook 'web-mode-hook #'setup-tide-mode)
+  ;; (add-hook 'web-mode-hook #'setup-tide-mode)
 )
 
 (use-package rjsx-mode
@@ -562,6 +577,8 @@
   ;; (setq-default indent-tabs-mode nil)
   ;; (setq web-mode-enable-auto-quoting t)
   ;; (setq web-mode-enable-auto-quoting nil)
+  (set-face-attribute 'web-mode-html-tag-face 'nil :foreground "#569CD6")
+  (set-face-attribute 'web-mode-current-element-highlight-face 'nil :foreground "set")
   (electric-pair-mode t)
   (emmet-mode)
 )
@@ -600,31 +617,28 @@
 (set-face-attribute 'region nil :background "#766EC8")
 
 ;;Webmode
-(set-face-attribute 'web-mode-html-tag-face 'nil :foreground "#569CD6")
-(set-face-attribute 'web-mode-current-element-highlight-face 'nil :foreground "set")
+
 
 ;; Flycheck
-(set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
-(set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3" :underline nil :weight 'bold)
-(set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black" :underline nil :weight 'bold)
-(setq pos-tip-background-color "red")
-(setq pos-tip-foreground-color "white") 
+
+
 
 ;;Company
-(eval-after-load 'company
-  '(progn
-     (set-face-attribute 'company-tooltip nil :background "#4d4d4d" :foreground "white")
-     (set-face-attribute 'company-scrollbar-bg nil :background "#4d4d4d")
-     (set-face-attribute 'company-scrollbar-fg nil :background "#737373")
-     (set-face-attribute 'company-tooltip-annotation nil :foreground "black" :slant 'italic' :height 1.1)
-     (set-face-attribute 'company-tooltip-common nil :foreground "gold" :weight 'bold' :height 1.2)
-     (set-face-attribute 'company-tooltip-selection nil :background "#8080ff"))
-  )
+;; (eval-after-load 'company
+  ;; '(progn
+     ;; (set-face-attribute 'company-tooltip nil :background "#4d4d4d" :foreground "white")
+     ;; (set-face-attribute 'company-scrollbar-bg nil :background "#4d4d4d")
+     ;; (set-face-attribute 'company-scrollbar-fg nil :background "#737373")
+     ;; (set-face-attribute 'company-tooltip-annotation nil :foreground "black" :slant 'italic' :height 1.1)
+     ;; (set-face-attribute 'company-tooltip-common nil :foreground "gold" :weight 'bold' :height 1.2)
+     ;; (set-face-attribute 'company-tooltip-selection nil :background "#8080ff"))
+  ;; )
 
 ;; Dired
 (eval-after-load 'dired
   '(progn    
      (set-face-attribute 'dired-directory nil :foreground "#66ccff" :height 1.2 :weight 'bold)))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
