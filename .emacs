@@ -6,7 +6,7 @@
 (setq package-enable-at-startup nil)
 
 ;; PACKAGES 
-(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line smart-mode-line-powerline-theme js2-mode rjsx-mode use-package xah-find))
+(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line smart-mode-line-powerline-theme js2-mode rjsx-mode use-package xah-find color-theme tangotango-theme))
 ;; MELPA
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
@@ -71,12 +71,12 @@
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (show-paren-mode 1)
-  (set-foreground-color "white")
-  (set-background-color "#1E1E1E")
+  ;; (set-foreground-color "white")
+  ;; (set-background-color "#1E1E1E")
   ;; (setq split-window-preferred-function nil)
   (global-hl-line-mode 1)
   ;; (set-cursor-color "red")
-  (set-face-background 'hl-line "midnight blue")
+  ;; (set-face-background 'hl-line "midnight blue")
   (setq ring-bell-function 'ignore)
   (blink-cursor-mode 0)
   ;; (require 'vc)
@@ -97,6 +97,14 @@
   (defalias 'list-buffers 'ibuffer)
   (defalias 'isearch-forward 'swiper)
   (defalias 'query-replace 'replace-string)
+)
+
+(use-package color-theme
+  :ensure t
+  :config
+  (setq color-theme-is-global t)
+  (color-theme-initialize)
+  (load-theme 'tangotango t)
 )
 
 (use-package xah-fly-keys
@@ -285,9 +293,9 @@
  (powerline-default-theme)
  (setq powerline-default-separator 'curve)
  :config
- (set-face-attribute 'powerline-active0 nil :background "#FF8C00" :foreground "#383838")
- (set-face-attribute 'powerline-active1 nil :background "#383838" :foreground "#FFFFFF")
- (set-face-attribute 'powerline-active2 nil :background "#666666" :foreground "#FFFFFF")
+ ;; (set-face-attribute 'powerline-active0 nil :background "#FF8C00" :foreground "#383838")
+ ;; (set-face-attribute 'powerline-active1 nil :background "#383838" :foreground "#FFFFFF")
+ ;; (set-face-attribute 'powerline-active2 nil :background "#666666" :foreground "#FFFFFF")
 )
 
 ;; These two lines are just examples
@@ -462,15 +470,15 @@
 (defun my-js-mode-hook ()
   (interactive)
   (setq js2-strict-missing-semi-warning nil)
-  (set-face-attribute 'js2-function-call nil :foreground "#DCDBAC")
-  (set-face-attribute 'js2-external-variable nil :foreground "#92DBFC")
-  (set-face-attribute 'js2-function-param nil :foreground "#92DBFC")
-  (set-face-attribute 'rjsx-tag nil :foreground "#32C1A9")
-  (set-face-attribute 'rjsx-tag-bracket-face nil :foreground "#7D7D7D")
-  (set-face-attribute 'font-lock-variable-name-face nil :foreground "#92DBFC")
+  ;; (set-face-attribute 'js2-function-call nil :foreground "#DCDBAC")
+  ;; (set-face-attribute 'js2-external-variable nil :foreground "#92DBFC")
+  ;; (set-face-attribute 'js2-function-param nil :foreground "#92DBFC")
+  ;; (set-face-attribute 'rjsx-tag nil :foreground "#32C1A9")
+  ;; (set-face-attribute 'rjsx-tag-bracket-face nil :foreground "#7D7D7D")
+  ;; (set-face-attribute 'font-lock-variable-name-face nil :foreground "#92DBFC")
   ;; (set-face-attribute 'default nil :foreground "#92DBFC")
-  (set-face-attribute 'default nil :foreground "#FFF")
-  (set-face-attribute 'font-lock-keyword-face nil :foreground "#C080B5")
+  ;; (set-face-attribute 'default nil :foreground "#FFF")
+  ;; (set-face-attribute 'font-lock-keyword-face nil :foreground "#C080B5")
   (setup-tide-mode)
   (setq js-indent-level 2))
 
@@ -577,8 +585,8 @@
   ;; (setq-default indent-tabs-mode nil)
   ;; (setq web-mode-enable-auto-quoting t)
   ;; (setq web-mode-enable-auto-quoting nil)
-  (set-face-attribute 'web-mode-html-tag-face 'nil :foreground "#569CD6")
-  (set-face-attribute 'web-mode-current-element-highlight-face 'nil :foreground "set")
+  ;; (set-face-attribute 'web-mode-html-tag-face 'nil :foreground "#569CD6")
+  ;; (set-face-attribute 'web-mode-current-element-highlight-face 'nil :foreground "set")
   (electric-pair-mode t)
   (emmet-mode)
 )
@@ -603,18 +611,18 @@
 
 ;; Colors
 ;; font-lock-variable-name-face
-(set-face-attribute 'default nil :foreground "#FFFFFF")
-(set-face-attribute 'font-lock-builtin-face nil :foreground "#DAB98F")
-(set-face-attribute 'font-lock-comment-face nil :foreground "sea green")
-(set-face-attribute 'font-lock-constant-face nil :foreground "#D6D6A1")
-(set-face-attribute 'font-lock-function-name-face nil :foreground "#D6D6A1")
-(set-face-attribute 'font-lock-keyword-face nil :foreground "#569CD6")
-(set-face-attribute 'font-lock-string-face nil :foreground "#C88D75")
-(set-face-attribute 'font-lock-type-face nil :foreground "#4EC3A6")
-(set-face-attribute 'font-lock-variable-name-face nil :foreground "white")
+;; (set-face-attribute 'default nil :foreground "#FFFFFF")
+;; (set-face-attribute 'font-lock-builtin-face nil :foreground "#DAB98F")
+;; (set-face-attribute 'font-lock-comment-face nil :foreground "sea green")
+;; (set-face-attribute 'font-lock-constant-face nil :foreground "#D6D6A1")
+;; (set-face-attribute 'font-lock-function-name-face nil :foreground "#D6D6A1")
+;; (set-face-attribute 'font-lock-keyword-face nil :foreground "#569CD6")
+;; (set-face-attribute 'font-lock-string-face nil :foreground "#C88D75")
+;; (set-face-attribute 'font-lock-type-face nil :foreground "#4EC3A6")
+;; (set-face-attribute 'font-lock-variable-name-face nil :foreground "white")
 ;; (set-face-attribute 'font-lock-variable-name-face nil :foreground "#92DBFC")
-(set-face-attribute 'font-lock-preprocessor-face nil :foreground "#C586C0")
-(set-face-attribute 'region nil :background "#766EC8")
+;; (set-face-attribute 'font-lock-preprocessor-face nil :foreground "#C586C0")
+;; (set-face-attribute 'region nil :background "#766EC8")
 
 ;;Webmode
 
@@ -635,9 +643,9 @@
   ;; )
 
 ;; Dired
-(eval-after-load 'dired
-  '(progn    
-     (set-face-attribute 'dired-directory nil :foreground "#66ccff" :height 1.2 :weight 'bold)))
+;; (eval-after-load 'dired
+  ;; '(progn    
+     ;; (set-face-attribute 'dired-directory nil :foreground "#66ccff" :height 1.2 :weight 'bold)))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
