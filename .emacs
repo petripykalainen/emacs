@@ -6,7 +6,7 @@
 (setq package-enable-at-startup nil)
 
 ;; PACKAGES 
-(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line smart-mode-line-powerline-theme js2-mode rjsx-mode use-package xah-find color-theme tangotango-theme))
+(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line smart-mode-line-powerline-theme js2-mode rjsx-mode use-package xah-find color-theme tangotango-theme org-bullets lsp-mode company-lsp hemisu-theme spacemacs-theme))
 ;; MELPA
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
@@ -95,8 +95,9 @@
   ;; (toggle-frame-maximized)
   ;; Defalias
   (defalias 'list-buffers 'ibuffer)
-  (defalias 'isearch-forward 'swiper)
-  (defalias 'query-replace 'replace-string)
+  ;; (defalias 'isearch-forward 'swiper)
+  ;; (defalias 'query-replace 'replace-string)
+  (defalias 'xah-insert-date 'petri-insert-date)
 )
 
 (use-package color-theme
@@ -104,8 +105,19 @@
   :config
   (setq color-theme-is-global t)
   (color-theme-initialize)
-  (load-theme 'tangotango t)
+  ;; (load-theme 'tangotango t)
+  (load-theme 'light-blue t)
+  ;; (load-theme 'hemisu-dark t)
+  (load-theme 'spacemacs-dark t)
 )
+
+(use-package org-bullets
+  :ensure t
+  :init
+  (setq org-bullets-bullet-list
+	'("◉" "◎" "<img draggable="false" class="emoji" alt="⚫" src="https://s0.wp.com/wp-content/mu-plugins/wpcom-smileys/twemoji/2/svg/26ab.svg">" "○" "►" "◇"))
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
 (use-package xah-fly-keys
   :ensure t
@@ -171,6 +183,16 @@
 (add-hook 'after-init-hook #'petri-keybind-hook)
 
 ;; Custom functions
+
+(defun petri-insert-date ()
+  "Version of xah-insert-date function that alwys uses format 4
+   2019-03-22 16:22:32+02:00"
+  (interactive)
+  (when (use-region-p) (delete-region (region-beginning) (region-end)))
+  (insert (concat
+           (format-time-string "%Y-%m-%d %T")
+           (funcall (lambda ($x) (format "%s:%s" (substring $x 0 3) (substring $x 3 5))) (format-time-string "%z"))))
+)
 
 (defun what-face (pos)
     (interactive "d")
@@ -243,7 +265,7 @@
   ;; disable jshint since we prefer eslint checking
   
   ;; use eslint with web-mode for jsx files
-  (flycheck-add-mode 'javascript-eslint 'web-mode)
+  ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
   ;; customize flycheck temp file prefix
   (setq-default flycheck-temp-prefix ".flycheck")
   ;; disable json-jsonlist checking for json files
@@ -293,6 +315,7 @@
  (powerline-default-theme)
  (setq powerline-default-separator 'curve)
  :config
+ (set-face-attribute 'mode-line-buffer-id nil :underline nil :overline nil)
  ;; (set-face-attribute 'powerline-active0 nil :background "#FF8C00" :foreground "#383838")
  ;; (set-face-attribute 'powerline-active1 nil :background "#383838" :foreground "#FFFFFF")
  ;; (set-face-attribute 'powerline-active2 nil :background "#666666" :foreground "#FFFFFF")
@@ -404,6 +427,27 @@
 
 (add-hook 'c-mode-hook 'petri-c-hook)
 
+;; LSP
+(use-package lsp-mode
+  :ensure t
+  :commands lsp
+  :config
+  (setq lsp-prefer-flymake nil)
+  ;; (add-hook 'js-mode-hook #'lsp)
+)
+
+;; (use-package lsp-ui
+  ;; :ensure t
+  ;; :commands lsp-ui-mode
+;; )
+
+(use-package company-lsp
+  :ensure t
+  :commands company-lsp
+  :config
+  ;; (push 'company-lsp company-backends)
+)
+
 ;; Company-mode
 (use-package company
   :ensure t
@@ -461,7 +505,7 @@
   :config
   (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
   (add-to-list 'auto-mode-alist '("\\.jsx\\'" . rjsx-mode))
-  (add-hook 'before-save-hook #'petri-web-save-and-format)
+  ;; (add-hook 'before-save-hook #'petri-web-save-and-format)
   (add-hook 'js-mode-hook 'my-js-mode-hook)
 )
 
@@ -480,6 +524,9 @@
   ;; (set-face-attribute 'default nil :foreground "#FFF")
   ;; (set-face-attribute 'font-lock-keyword-face nil :foreground "#C080B5")
   (setup-tide-mode)
+  (emmet-mode)
+  (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
+  (lsp)
   (setq js-indent-level 2))
 
 ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
@@ -511,6 +558,7 @@
   (interactive)
   (tide-setup)
   ;; (flycheck-mode +1)
+  (add-hook 'before-save-hook 'tide-format-before-save)
   (setq flycheck-check-syntax-automatically '(save mode-enabled))
   ;; (eldoc-mode +1)
   (tide-hl-identifier-mode +1)
@@ -540,12 +588,20 @@
 (defun petri-web-save-and-format ()
   "Runs formatting based on file type (html or js)"
   (interactive)
-  (if (not (string-equal "html" (file-name-extension buffer-file-name)))
+  (if (string-equal (or "js" "jsx" "ts") (file-name-extension buffer-file-name))
       ;; (message "Doing tide formatting")
       (tide-format)
-    (if (not (string-equal "css" (file-name-extension buffer-file-name)))
+    (if (string-equal (or  "html" "xhtml" "php") (file-name-extension buffer-file-name))
         ;; (message "Doing html web formatting")
-        (web-mode-buffer-indent))))
+	(web-mode-buffer-indent))))
+
+(defun petriweb-format-before-save ()
+  "Formats web-mode buffer. 
+   Similiar to tide-format-before-save hook."
+  (interactive)
+  (if (derived-mode-p 'web-mode)
+      (web-mode-buffer-indent)
+    (message "not web mode!")))
 
 ;; TSX
 ;; (require 'web-mode)
@@ -563,8 +619,8 @@
   "Hooks for Web mode."
   (interactive)
   (company-mode)
-  (add-hook 'before-save-hook #'petri-web-save-and-format)
-  (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
+  (add-hook 'before-save-hook #'petriweb-format-before-save)
+  ;; (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
   ;; (setq web-mode-script-padding 2)
   ;; (setq web-mode-style-padding 2)
   ;; (setq web-mode-block-padding 2)
@@ -630,7 +686,6 @@
 ;; Flycheck
 
 
-
 ;;Company
 ;; (eval-after-load 'company
   ;; '(progn
@@ -654,7 +709,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (color-identifiers-mode yasnippet-snippets xah-fly-keys web-mode tide swiper smart-mode-line-powerline-theme lsp-javascript-typescript js2-mode flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode eglot dumb-jump company-lsp company-irony))))
+    (spacemacs-theme lsp-mode color-identifiers-mode yasnippet-snippets xah-fly-keys web-mode tide swiper smart-mode-line-powerline-theme lsp-javascript-typescript js2-mode flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode eglot dumb-jump company-lsp company-irony))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
