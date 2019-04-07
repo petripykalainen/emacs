@@ -1,12 +1,12 @@
-(setq gc-cons-threshold 100000000)
-(add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 800000)))
+;; (setq gc-cons-threshold 100000000)
+(add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 100000000)))
 ;;(load "~/.emacs.d/lisp/my-abbrev.el")
 
 (require 'package)
 (setq package-enable-at-startup nil)
 
 ;; PACKAGES 
-(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line smart-mode-line-powerline-theme js2-mode rjsx-mode use-package xah-find color-theme tangotango-theme org-bullets lsp-mode company-lsp alect-themes hemisu-theme ample-theme spacemacs-theme smart-mode-line))
+(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line smart-mode-line-powerline-theme js2-mode rjsx-mode use-package xah-find tangotango-theme org-bullets lsp-mode company-lsp alect-themes hemisu-theme ample-theme spacemacs-theme smart-mode-line))
 ;; MELPA
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
@@ -107,19 +107,7 @@
   ;; Also auto refresh dired, but be quiet about it
   (setq global-auto-revert-non-file-buffers t)
   (setq auto-revert-verbose nil)
-)
-
-(use-package color-theme
-  :ensure t
-  :config
-  (setq color-theme-is-global t)
-  (color-theme-initialize)
-  ;; (load-theme 'tangotango t)
-  ;; (load-theme 'light-blue t)
-  ;; (load-theme 'hemisu-dark t)
   (load-theme 'spacemacs-dark t)
-  ;; (load-theme 'ample-light t)
-  ;; (load-theme 'alect-light t)
 )
 
 (use-package org-bullets
@@ -277,17 +265,11 @@
   (setq flycheck-indication-mode nil)
   ;; (setq flycheck--idle-trigger-timer 0.9)
   (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp))
-  (setq-default flycheck-disabled-checkers
-		(append flycheck-disabled-checkers
-			'(javascript-jshint)))
-  ;; disable jshint since we prefer eslint checking
-  
-  ;; use eslint with web-mode for jsx files
-  ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
-  ;; customize flycheck temp file prefix
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
   (setq-default flycheck-temp-prefix ".flycheck")
   ;; disable json-jsonlist checking for json files
   (add-hook 'after-init-hook #'global-flycheck-mode)
+
   (set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
   (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3" :underline nil :weight 'bold)
   (set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black" :underline nil :weight 'bold)
@@ -545,6 +527,8 @@
 
 ;; (add-hook 'js-mode-hook 'js2-minor-mode)
 
+;; (add-hook 'js-mode-hook 'my-js-mode-hook)
+
 (defun my-js-mode-hook ()
   (interactive)
   ;; (setq js2-strict-missing-semi-warning nil)
@@ -574,14 +558,13 @@
   (setq-default flycheck-disabled-checkers
 		(append flycheck-disabled-checkers
 			'(json-jsonlist)))
-
   (setup-tide-mode)
   (emmet-mode)
   (setq emmet-expand-jsx-className? t) ;; default nil
   (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
-  (lsp)
   (setq lsp-clients-typescript-server "typescript-language-server"
        lsp-clients-typescript-server-args '("--stdio"))
+  (lsp)
   (setq js-indent-level 2)
   (setq sgml-basic-offset 2)
   (setq js-switch-indent-offset 2)
