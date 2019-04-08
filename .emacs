@@ -108,6 +108,7 @@
   (setq global-auto-revert-non-file-buffers t)
   (setq auto-revert-verbose nil)
   (load-theme 'spacemacs-dark t)
+  (petri-flycheck-colors)
 )
 
 (use-package org-bullets
@@ -185,7 +186,6 @@
 ;; (add-hook 'after-init-hook #'my-package-init)
 (add-hook 'after-init-hook #'petri-general-settings)
 (add-hook 'after-init-hook #'petri-keybind-hook)
-
 (add-hook 'conf-mode-hook #'petri-conf-mode-hook)
 
 ;; Custom functions
@@ -269,7 +269,7 @@
   (setq-default flycheck-temp-prefix ".flycheck")
   ;; disable json-jsonlist checking for json files
   (add-hook 'after-init-hook #'global-flycheck-mode)
-
+  (global-flycheck-mode)
   (set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
   (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3" :underline nil :weight 'bold)
   (set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black" :underline nil :weight 'bold)
@@ -558,12 +558,12 @@
   (setq-default flycheck-disabled-checkers
 		(append flycheck-disabled-checkers
 			'(json-jsonlist)))
-  (setup-tide-mode)
+  ;; (setup-tide-mode)
   (emmet-mode)
   (setq emmet-expand-jsx-className? t) ;; default nil
   (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
-  (setq lsp-clients-typescript-server "typescript-language-server"
-       lsp-clients-typescript-server-args '("--stdio"))
+  ;; (setq lsp-clients-typescript-server "typescript-language-server"
+       ;; lsp-clients-typescript-server-args '("--stdio"))
   (lsp)
   (setq js-indent-level 2)
   (setq sgml-basic-offset 2)
@@ -601,8 +601,9 @@
 
 (defun setup-tide-mode ()
   (interactive)
+  (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
   (tide-setup)
-  ;; (flycheck-mode +1)
+  (flycheck-mode +1)
   (add-hook 'before-save-hook 'tide-format-before-save)
   (setq flycheck-check-syntax-automatically '(save mode-enabled))
   (eldoc-mode +1)
@@ -610,11 +611,11 @@
   ;; configure javascript-tide checker to run after your default javascript checker
   (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)
   (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(tsx-tide)))
-  ;; (add-to-list 'company-backends 'company-tide)
+  (add-to-list 'company-backends 'company-tide)
     ;; company is an optional dependency. You have to
   ;; install it separately via package-install
   ;; `M-x package-install [ret] company`
-  ;; (company-mode +1)
+  (company-mode +1)
   )
 
 ;; (require 'web-mode)
@@ -725,11 +726,15 @@
 ;; (set-face-attribute 'font-lock-preprocessor-face nil :foreground "#C586C0")
 ;; (set-face-attribute 'region nil :background "#766EC8")
 
-;;Webmode
-
 
 ;; Flycheck
-
+(defun petri-flycheck-colors ()
+  "sets better visual for error, warning and info"
+  (interactive)
+     (set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
+     (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3" :underline nil :weight 'bold)
+     (set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black" :underline nil :weight 'bold)
+)
 
 ;;Company
 ;; (eval-after-load 'company
@@ -747,17 +752,4 @@
   ;; '(progn    
      ;; (set-face-attribute 'dired-directory nil :foreground "#66ccff" :height 1.2 :weight 'bold)))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (alect-themes spacemacs-theme lsp-mode color-identifiers-mode yasnippet-snippets xah-fly-keys web-mode tide swiper smart-mode-line-powerline-theme lsp-javascript-typescript js2-mode flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode eglot dumb-jump company-lsp company-irony))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
