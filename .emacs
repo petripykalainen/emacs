@@ -1,12 +1,11 @@
-;; (setq gc-cons-threshold 100000000)
-(add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 100000000)))
+(setq gc-cons-threshold 100000000)
 ;;(load "~/.emacs.d/lisp/my-abbrev.el")
 
 (require 'package)
 (setq package-enable-at-startup nil)
 
 ;; PACKAGES 
-(setq package-list '(ivy swiper flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line smart-mode-line-powerline-theme js2-mode rjsx-mode use-package xah-find tangotango-theme org-bullets lsp-mode company-lsp alect-themes hemisu-theme ample-theme spacemacs-theme smart-mode-line))
+(setq package-list '(ivy flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line js2-mode rjsx-mode use-package xah-find org-bullets lsp-mode company-lsp spacemacs-theme smart-mode-line eglot))
 ;; MELPA
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
@@ -41,16 +40,12 @@
 (eval-when-compile
   (require 'use-package))
 
-;; Determine OS and setup
-(setq p/linux (featurep 'x))
-(setq p/win32 (not p/linux))
-
 ;; Setup
 (defun petri-general-settings ()
   (setq column-number-mode t)
   (setq mode-line-position '((line-number-mode ("%l " (column-number-mode ": %c")))))
   (setq-default frame-title-format "%f")
-  (when (version<= "26.0.50" emacs-version )
+  (when (version<="26.0.50" emacs-version )
     (global-display-line-numbers-mode))
   ;; Bigger undo
   (setq undo-limit 20000000)
@@ -109,6 +104,7 @@
   (setq auto-revert-verbose nil)
   (load-theme 'spacemacs-dark t)
   (petri-flycheck-colors)
+  (eldoc-mode 1)
 )
 
 (use-package org-bullets
@@ -263,16 +259,11 @@
   :ensure t
   :config
   (setq flycheck-indication-mode nil)
-  ;; (setq flycheck--idle-trigger-timer 0.9)
-  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp))
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (setq-default flycheck-temp-prefix ".flycheck")
-  ;; disable json-jsonlist checking for json files
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp javascript-jshint json-jsonlint))
+  ;; (setq-default flycheck-temp-prefix ".flycheck")
   (add-hook 'after-init-hook #'global-flycheck-mode)
-  (global-flycheck-mode)
-  (set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
-  (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3" :underline nil :weight 'bold)
-  (set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black" :underline nil :weight 'bold)
+  ;; (global-flycheck-mode)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
 )
 
 (use-package flycheck-pos-tip
@@ -304,40 +295,6 @@
   :config
   (dumb-jump-mode 1)
 )
-;;_Smart-Mode-Line
-;; (use-package smart-mode-line
-  ;; :ensure t
-  ;; :config
-  ;; (setq sml/no-confirm-load-theme t)
-  ;; (setq sml/theme 'dark)
-  ;; (sml/setup)
-;; )
-
-;; POWERLINE
-;; (use-package powerline
- ;; :ensure t
- ;; :init
- ;; (powerline-default-theme)
- ;; (setq powerline-default-separator 'curve)
- ;; :config
- ;; (set-face-attribute 'mode-line-buffer-id nil :underline nil :overline nil)
- ;; (set-face-attribute 'powerline-active0 nil :background "#FF8C00" :foreground "#383838")
- ;; (set-face-attribute 'powerline-active1 nil :background "#383838" :foreground "#FFFFFF")
- ;; (set-face-attribute 'powerline-active2 nil :background "#666666" :foreground "#FFFFFF")
-;; )
-
-;; These two lines are just examples
-;; (setq powerline-arrow-shape 'curve)
-;; (setq powerline-default-separator-dir '(right . left))
-;; (setq sml/shorten-directory t)
-;; (setq sml/shorten-modes t)
-;; (setq sml/name-width t)
-;; (setq sml/mode-width t)
-;; These two lines you really need.
-;; (setq sml/theme 'powerline)
-;; (setq sml/no-confirm-load-theme t)
-;; (sml/setup)
-
 
 ;; Yasnippet
 (use-package yasnippet
@@ -425,41 +382,58 @@
   (setq dabbrev-case-replace t)
   (setq dabbrev-case-fold-search t)
   (setq dabbrev-upcase-means-case-search t)
-
-  ;; Abbrevation expansion
-  ;; (abbrev-mode 1)
 )
 
 (add-hook 'c-mode-hook 'petri-c-hook)
 
 ;; LSP
-(use-package lsp-mode
-  :ensure t
-  :commands lsp
-  :config
-  (setq lsp-prefer-flymake nil)
+;; (use-package lsp-mode
+  ;; :ensure t
+  ;; :commands lsp
+  ;; :init
   ;; (add-hook 'js-mode-hook #'lsp)
-)
+  ;; :config
+  ;; (setq lsp-prefer-flymake nil)
+;; )
 
 ;; (use-package lsp-ui
   ;; :ensure t
   ;; :commands lsp-ui-mode
+  ;; :init
+  ;; (setq
+   ;; lsp-ui-flycheck-enable t
+   ;; lsp-ui-doc-enable nil
+   ;; lsp-ui-peek-enable nil
+   ;; lsp-ui-sideline-enable nil
+   ;; lsp-ui-imenu-enable nil
+   ;; lsp-ui-flycheck-live-reporting nil
+   ;; )
 ;; )
 
-(use-package company-lsp
-  :ensure t
-  :commands company-lsp
-  :config
+;; Eglot
+;; (use-package eglot
+  ;; :ensure t
+  ;; :config
+  ;; (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . eglot))
+  ;; (add-hook 'eglot--managed-mode-hook (lambda () (flymake-mode -1)))
+  ;; (flymake-mode -1)
+  ;; (add-hook 'js-mode-hook 'eglot-ensure)
+;; )
+
+;; (use-package company-lsp
+  ;; :ensure t
+  ;; :commands company-lsp
+  ;; :config
   ;; (push 'company-lsp company-backends)
-)
+;; )
 
 ;; Company-mode
 (use-package company
   :ensure t
-  :init
+  :config
   (setq company-dabbrev-downcase 0)
   (setq company-idle-delay 0.1)
-  (setq company-minimum-prefix-length 2)
+  (setq company-minimum-prefix-length 3)
   (setq company-dabbrev-downcase nil)
   (setq company-dabbrev-other-buffers t)
   (setq company-auto-complete nil)
@@ -467,23 +441,19 @@
   (setq company-dabbrev-code-everywhere t)
   (setq company-dabbrev-code-ignore-case t)
   (setq company-tooltip-align-annotations t)
-  :config
   (add-hook 'after-init-hook 'global-company-mode)
-  (set-face-attribute 'company-tooltip nil :background "#4d4d4d" :foreground "white")
-  (set-face-attribute 'company-scrollbar-bg nil :background "#4d4d4d")
-  (set-face-attribute 'company-scrollbar-fg nil :background "#737373")
-  (set-face-attribute 'company-tooltip-annotation nil :foreground "black" :slant 'italic' :height 1.1)
-  (set-face-attribute 'company-tooltip-common nil :foreground "gold" :weight 'bold' :height 1.2)
-  (set-face-attribute 'company-tooltip-selection nil :background "#8080ff")
+  ;; (set-face-attribute 'company-tooltip nil :background "#4d4d4d" :foreground "white")
+  ;; (set-face-attribute 'company-scrollbar-bg nil :background "#4d4d4d")
+  ;; (set-face-attribute 'company-scrollbar-fg nil :background "#737373")
+  ;; (set-face-attribute 'company-tooltip-annotation nil :foreground "black" :slant 'italic' :height 1.1)
+  ;; (set-face-attribute 'company-tooltip-common nil :foreground "gold" :weight 'bold' :height 1.2)
+  ;; (set-face-attribute 'company-tooltip-selection nil :background "#8080ff")
 ) 
 
 ;; IRONY
 (use-package irony
   :ensure t
   :config
-    ;; (unless (irony--find-server-executable)
-    ;; (with-minibuffer-input
-  	;; (call-interactively #'irony-install-server) ""))
   (add-hook 'c++-mode-hook 'irony-mode)
   (add-hook 'c-mode-hook 'irony-mode)
   (add-hook 'objc-mode-hook 'irony-mode)
@@ -497,12 +467,10 @@
   (add-to-list 'auto-mode-alist '("\\.erb\\'"    . web-mode))       ;; ERB
   (add-to-list 'auto-mode-alist '("\\.json\\'"   . web-mode))       ;; JSON
   (add-to-list 'auto-mode-alist '("\\.html?\\'"  . web-mode))       ;; Plain HTML
-  ;; (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))       ;; JS + JSX
   (add-to-list 'auto-mode-alist '("\\.es6\\'"    . web-mode))       ;; ES6
   (add-to-list 'auto-mode-alist '("\\.php\\'"   . web-mode))        ;; PHP
   (add-to-list 'auto-mode-alist '("\\.blade\\.php\\'" . web-mode))  ;; Blade template
   (add-hook 'web-mode-hook 'my-web-mode-hook)
-  ;; (add-hook 'web-mode-hook #'setup-tide-mode)
 )
 
 (use-package rjsx-mode
@@ -513,7 +481,7 @@
     (define-key rjsx-mode-map (kbd "C-d") nil)
     (define-key rjsx-mode-map ">" nil))
   (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . rjsx-mode))
-  (add-to-list 'auto-mode-alist '("\\.jsx\\'" . rjsx-mode))
+  ;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . rjsx-mode))
   (add-hook 'js-mode-hook 'my-js-mode-hook)
 )
 
@@ -525,15 +493,12 @@
   ;; (add-hook 'js-mode-hook 'my-js-mode-hook) 
 ;; )
 
-;; (add-hook 'js-mode-hook 'js2-minor-mode)
-
-;; (add-hook 'js-mode-hook 'my-js-mode-hook)
-
 (defun my-js-mode-hook ()
   (interactive)
   ;; (setq js2-strict-missing-semi-warning nil)
-  (setq js2-mode-show-parse-errors nil)
-  (setq js2-mode-show-strict-warnings nil)
+  ;; (setq js2-mode-show-parse-errors nil)
+  ;; (setq js2-mode-show-strict-warnings nil)
+
   ;; (set-face-attribute 'js2-function-call nil :foreground "#DCDBAC")
   ;; (set-face-attribute 'js2-external-variable nil :foreground "#92DBFC")
   ;; (set-face-attribute 'js2-function-param nil :foreground "#92DBFC")
@@ -543,28 +508,22 @@
   ;; (set-face-attribute 'default nil :foreground "#92DBFC")
   ;; (set-face-attribute 'default nil :foreground "#FFF")
   ;; (set-face-attribute 'font-lock-keyword-face nil :foreground "#C080B5")
+  
+  ;; use rjsx-mode for .jsx files
+  (add-to-list 'auto-mode-alist '("\\.jsx$" . rjsx-mode))
 
-  ;; disable jshint since we prefer eslint checking
-  (setq-default flycheck-disabled-checkers
-		(append flycheck-disabled-checkers
-			'(javascript-jshint)))
-  ;; use eslint with web-mode for jsx files
+  ;; http://www.flycheck.org/manual/latest/index.html
+  (require 'flycheck)
+
+  ;; turn on flychecking globally
+  (add-hook 'after-init-hook #'global-flycheck-mode)
+
+  ;; use eslint with rjsx-mode for jsx files
   (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
 
-  ;; customize flycheck temp file prefix
-  (setq-default flycheck-temp-prefix ".flycheck")
-
-  ;; disable json-jsonlist checking for json files
-  (setq-default flycheck-disabled-checkers
-		(append flycheck-disabled-checkers
-			'(json-jsonlist)))
-  ;; (setup-tide-mode)
+  (setup-tide-mode)
   (emmet-mode)
   (setq emmet-expand-jsx-className? t) ;; default nil
-  (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
-  ;; (setq lsp-clients-typescript-server "typescript-language-server"
-       ;; lsp-clients-typescript-server-args '("--stdio"))
-  (lsp)
   (setq js-indent-level 2)
   (setq sgml-basic-offset 2)
   (setq js-switch-indent-offset 2)
@@ -572,23 +531,7 @@
   ;; (add-hook 'emmet-mode-hook (lambda () (setq emmet-indent-after-insert nil)))
 )
 
-;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-;; (add-hook 'js2-mode-hook 'my-js-mode-hook)
-
-;; (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-jsx-mode))
-
-;; (setq web-mode-content-types-alist
-      ;; '(("jsx" . "\\.js[x]?\\'")
-        ;; ("javascript" . "\\.es6?\\'")))
-
-;; (defadvice web-mode-highlight-part (around tweak-jsx activate)
-  ;; (if (equal web-mode-content-type "jsx")
-    ;; (let ((web-mode-enable-part-face nil))
-      ;; ad-do-it)
-    ;; ad-do-it))
-
-;; use web-mode for .jsx files
-;; (add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
+  (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
 
 ;; Emmet
 (use-package emmet-mode
@@ -601,34 +544,17 @@
 
 (defun setup-tide-mode ()
   (interactive)
-  (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
   (tide-setup)
-  (flycheck-mode +1)
   (add-hook 'before-save-hook 'tide-format-before-save)
+  (tide-hl-identifier-mode +1)
+  (flycheck-mode +1)
   (setq flycheck-check-syntax-automatically '(save mode-enabled))
   (eldoc-mode +1)
-  (tide-hl-identifier-mode +1)
-  ;; configure javascript-tide checker to run after your default javascript checker
-  (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)
-  (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(tsx-tide)))
-  (add-to-list 'company-backends 'company-tide)
-    ;; company is an optional dependency. You have to
+  ;; company is an optional dependency. You have to
   ;; install it separately via package-install
   ;; `M-x package-install [ret] company`
   (company-mode +1)
-  )
-
-;; (require 'web-mode)
-;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
-;; (add-hook 'web-mode-hook
-          ;; (lambda ()
-            ;; (when (string-equal "jsx" (file-name-extension buffer-file-name))
-              ;; (setup-tide-mode))))
-;; configure jsx-tide checker to run after your default jsx checker
-;; (flycheck-add-mode 'javascript-eslint 'web-mode)
-;; (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
-
-;; (add-hook 'typescript-mode-hook #'setup-tide-mode)
+)
 
 (defun petri-web-save-and-format ()
   "Runs formatting based on file type (html or js)"
@@ -648,24 +574,11 @@
       (web-mode-buffer-indent)
     (message "not web mode!")))
 
-;; TSX
-;; (require 'web-mode)
-;; (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
-;; (add-hook 'web-mode-hook
-          ;; (lambda ()
-            ;; (when (string-equal "tsx" (file-name-extension buffer-file-name))
-              ;; (setup-tide-mode))))
-;; enable typescript-tslint checker
-;; (flycheck-add-mode 'typescript-tslint 'web-mode)
-
-
-
 (defun my-web-mode-hook ()
   "Hooks for Web mode."
   (interactive)
   (company-mode)
   (add-hook 'before-save-hook #'petriweb-format-before-save)
-  ;; (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
   ;; (setq web-mode-script-padding 2)
   ;; (setq web-mode-style-padding 2)
   ;; (setq web-mode-block-padding 2)
@@ -701,16 +614,6 @@
 ;; (add-hook 'js2-mode-hook 'setup-tide-mode)
 (add-hook 'css-mode-hook 'my-css-hook)
 
-
-;;-Windows-performance-tweaks
-(when p/win32
-  (when (boundp 'w32-pipe-read-delay)
-    (setq w32-pipe-read-delay 0))
-  ;; Set the buffer size to 64K on Windows (from the original 4K)
-  (when (boundp 'w32-pipe-buffer-size)
-    (setq irony-server-w32-pipe-buffer-size (* 64 1024)))
-)
-
 ;; Colors
 ;; font-lock-variable-name-face
 ;; (set-face-attribute 'default nil :foreground "#FFFFFF")
@@ -732,7 +635,7 @@
   "sets better visual for error, warning and info"
   (interactive)
      (set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
-     (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "burlywood3" :underline nil :weight 'bold)
+     (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "black" :underline nil :weight 'bold)
      (set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black" :underline nil :weight 'bold)
 )
 
@@ -751,5 +654,17 @@
 ;; (eval-after-load 'dired
   ;; '(progn    
      ;; (set-face-attribute 'dired-directory nil :foreground "#66ccff" :height 1.2 :weight 'bold)))
-
-
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode eglot dumb-jump company-lsp company-irony))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
