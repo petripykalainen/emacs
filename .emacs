@@ -1,4 +1,4 @@
-(setq gc-cons-threshold 100000000)
+;; (setq gc-cons-threshold 100000000)
 ;;(load "~/.emacs.d/lisp/my-abbrev.el")
 
 (require 'package)
@@ -42,6 +42,15 @@
 
 ;; Setup
 (defun petri-general-settings ()
+  (progn
+    ;; make indentation commands use space only (never tab character)
+    (setq-default indent-tabs-mode nil)
+    (setq-default tab-width 4)
+    (setq-default c-basic-offset 2)
+    ;; emacs 23.1 to 26, default to t
+    ;; if indent-tabs-mode is t, it means it may use tab, resulting mixed space and tab
+    )
+  ;; (setq tab-always-indent 'complete)
   (setq column-number-mode t)
   (setq mode-line-position '((line-number-mode ("%l " (column-number-mode ": %c")))))
   (setq-default frame-title-format "%f")
@@ -175,7 +184,9 @@
 
 (defun petri-conf-mode-hook ()
   (setq c-basic-offset 2)
-  ;;(setq-default tab-width 2)
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-always-indent 'complete)
+  (setq-default tab-width 4)
 )
 
 ;; Init hook
@@ -385,6 +396,11 @@
 )
 
 (add-hook 'c-mode-hook 'petri-c-hook)
+(add-hook 'text-mode-hook
+          '(lambda ()
+             (setq indent-tabs-mode nil)
+             (setq tab-width 4)
+             (setq indent-line-function (quote insert-tab))))
 
 ;; LSP
 ;; (use-package lsp-mode
