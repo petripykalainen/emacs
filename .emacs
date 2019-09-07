@@ -182,18 +182,18 @@
   (global-set-key (kbd "C-e") 'xah-end-of-line-or-block)
 )
 
-(defun petri-conf-mode-hook ()
-  (setq c-basic-offset 2)
-  (setq-default indent-tabs-mode nil)
-  (setq-default tab-always-indent 'complete)
-  (setq-default tab-width 4)
-)
+;; (defun petri-conf-mode-hook ()
+;;   (setq c-basic-offset 2)
+;;   (setq-default indent-tabs-mode nil)
+;;   (setq-default tab-always-indent 'complete)
+;;   (setq-default tab-width 4)
+;; )
 
 ;; Init hook
 ;; (add-hook 'after-init-hook #'my-package-init)
 (add-hook 'after-init-hook #'petri-general-settings)
 (add-hook 'after-init-hook #'petri-keybind-hook)
-(add-hook 'conf-mode-hook #'petri-conf-mode-hook)
+;; (add-hook 'conf-mode-hook #'petri-conf-mode-hook)
 
 ;; Custom functions
 
@@ -400,31 +400,42 @@
           '(lambda ()
              (setq indent-tabs-mode nil)
              (setq tab-width 4)
-             (setq indent-line-function (quote insert-tab))))
+             (setq-default indent-line-function 'indent-to-left-margin)
+             (setq-default tab-always-indent nil)
+             ;; (setq indent-line-function (quote insert-tab))
+))
 
 ;; LSP
-;; (use-package lsp-mode
-  ;; :ensure t
-  ;; :commands lsp
-  ;; :init
-  ;; (add-hook 'js-mode-hook #'lsp)
-  ;; :config
-  ;; (setq lsp-prefer-flymake nil)
-;; )
+(use-package lsp-mode
+  :ensure t
+  :commands lsp
+  :init
+  (add-hook 'js-mode-hook #'lsp)
+  :config
+  (setq lsp-prefer-flymake nil)
+  )
 
-;; (use-package lsp-ui
-  ;; :ensure t
-  ;; :commands lsp-ui-mode
-  ;; :init
-  ;; (setq
-   ;; lsp-ui-flycheck-enable t
-   ;; lsp-ui-doc-enable nil
-   ;; lsp-ui-peek-enable nil
-   ;; lsp-ui-sideline-enable nil
-   ;; lsp-ui-imenu-enable nil
-   ;; lsp-ui-flycheck-live-reporting nil
-   ;; )
-;; )
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode
+  :init
+  (setq
+   lsp-ui-flycheck-enable t
+   lsp-ui-doc-enable nil
+   lsp-ui-peek-enable nil
+   lsp-ui-sideline-enable nil
+   lsp-ui-imenu-enable nil
+   lsp-ui-flycheck-live-reporting nil
+   )
+  )
+
+(use-package company-lsp
+  :ensure t
+  :commands company-lsp
+  :config
+  (setq company-lsp-cache-candidates 'auto)
+  (push 'company-lsp company-backends)
+  )
 
 ;; Eglot
 ;; (use-package eglot
@@ -436,12 +447,6 @@
   ;; (add-hook 'js-mode-hook 'eglot-ensure)
 ;; )
 
-;; (use-package company-lsp
-  ;; :ensure t
-  ;; :commands company-lsp
-  ;; :config
-  ;; (push 'company-lsp company-backends)
-;; )
 
 ;; Company-mode
 (use-package company
@@ -537,7 +542,7 @@
   ;; use eslint with rjsx-mode for jsx files
   (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
 
-  (setup-tide-mode)
+  ;; (setup-tide-mode)
   (emmet-mode)
   (setq emmet-expand-jsx-className? t) ;; default nil
   (setq js-indent-level 2)
@@ -676,8 +681,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   (quote
-    (yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode eglot dumb-jump company-lsp company-irony))))
+   '(ag yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode eglot dumb-jump company-lsp company-irony)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
