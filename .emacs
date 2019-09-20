@@ -1,4 +1,4 @@
-;; (setq gc-cons-threshold 100000000)
+(setq gc-cons-threshold 100000000)
 ;;(load "~/.emacs.d/lisp/my-abbrev.el")
 
 (require 'package)
@@ -46,7 +46,7 @@
     ;; make indentation commands use space only (never tab character)
     (setq-default indent-tabs-mode nil)
     (setq-default tab-width 4)
-    (setq-default c-basic-offset 2)
+    ;; (setq-default c-basic-offset 2)
     ;; emacs 23.1 to 26, default to t
     ;; if indent-tabs-mode is t, it means it may use tab, resulting mixed space and tab
     )
@@ -285,9 +285,9 @@
   (setq pos-tip-foreground-color "white") 
 )
 
-(use-package flycheck-irony
-  :ensure t
-)
+;; (use-package flycheck-irony
+  ;; :ensure t
+;; )
 
 ;; IVY
 (use-package ivy
@@ -300,11 +300,22 @@
 )
 
 
+;; (use-package dumb-jump
+  ;; :config
+  ;; (dumb-jump-mode 1)
+;; )
+
 ;; DUMB-JUMP
 (use-package dumb-jump
   :ensure t
+  :bind (("M-g o" . dumb-jump-go-other-window)
+         ("M-g j" . dumb-jump-go)
+         ("M-g i" . dumb-jump-go-prompt)
+         ("M-g x" . dumb-jump-go-prefer-external)
+         ("M-g z" . dumb-jump-go-prefer-external-other-window))
   :config
-  (dumb-jump-mode 1)
+  (setq dumb-jump-prefer-searcher 'ag)
+  (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
 )
 
 ;; Yasnippet
@@ -387,7 +398,7 @@
   (setq c-hanging-semi&comma-criteria '((lambda () 'stop)))
   
   ;; (add-to-list 'company-backends 'company-irony)
-  (add-to-list (make-local-variable 'company-backends) 'company-irony)
+  ;; (add-to-list (make-local-variable 'company-backends) 'company-irony)
 
   ;; Handle super-tabbify (TAB completes, shift-TAB actually tabs)
   (setq dabbrev-case-replace t)
@@ -410,31 +421,31 @@
   :ensure t
   :commands lsp
   :init
-  (add-hook 'js-mode-hook #'lsp)
+  (add-hook 'prog-mode-hook #'lsp)
   :config
-  (setq lsp-prefer-flymake nil)
+  ;; (setq lsp-prefer-flymake nil)
   )
 
-(use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode
-  :init
-  (setq
-   lsp-ui-flycheck-enable t
-   lsp-ui-doc-enable nil
-   lsp-ui-peek-enable nil
-   lsp-ui-sideline-enable nil
-   lsp-ui-imenu-enable nil
-   lsp-ui-flycheck-live-reporting nil
-   )
-  )
+;; (use-package lsp-ui
+;;   :ensure t
+;;   :commands lsp-ui-mode
+;;   :init
+;;   (setq
+;;    lsp-ui-flycheck-enable t
+;;    lsp-ui-doc-enable nil
+;;    lsp-ui-peek-enable nil
+;;    lsp-ui-sideline-enable nil
+;;    lsp-ui-imenu-enable nil
+;;    lsp-ui-flycheck-live-reporting nil
+;;    )
+;;   )
 
 (use-package company-lsp
   :ensure t
   :commands company-lsp
   :config
-  (setq company-lsp-cache-candidates 'auto)
-  (push 'company-lsp company-backends)
+  (setq company-lsp-cache-candidates t)
+  ;; (push 'company-lsp company-backends)
   )
 
 ;; Eglot
@@ -454,7 +465,7 @@
   :config
   (setq company-dabbrev-downcase 0)
   (setq company-idle-delay 0.1)
-  (setq company-minimum-prefix-length 3)
+  (setq company-minimum-prefix-length 4)
   (setq company-dabbrev-downcase nil)
   (setq company-dabbrev-other-buffers t)
   (setq company-auto-complete nil)
@@ -472,14 +483,14 @@
 ) 
 
 ;; IRONY
-(use-package irony
-  :ensure t
-  :config
-  (add-hook 'c++-mode-hook 'irony-mode)
-  (add-hook 'c-mode-hook 'irony-mode)
-  (add-hook 'objc-mode-hook 'irony-mode)
-  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-  )
+;; (use-package irony
+  ;; :ensure t
+  ;; :config
+  ;; (add-hook 'c++-mode-hook 'irony-mode)
+  ;; (add-hook 'c-mode-hook 'irony-mode)
+  ;; (add-hook 'objc-mode-hook 'irony-mode)
+  ;; (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+  ;; )
 
 ;; WEB-MODE
 (use-package web-mode
@@ -491,6 +502,8 @@
   (add-to-list 'auto-mode-alist '("\\.es6\\'"    . web-mode))       ;; ES6
   (add-to-list 'auto-mode-alist '("\\.php\\'"   . web-mode))        ;; PHP
   (add-to-list 'auto-mode-alist '("\\.blade\\.php\\'" . web-mode))  ;; Blade template
+  ;; (setq web-mode-markup-indent-offset 2)
+  ;; (setq web-mode-sql-indent-offset 2)
   (add-hook 'web-mode-hook 'my-web-mode-hook)
 )
 
@@ -498,6 +511,9 @@
   :ensure t
   :config
   (with-eval-after-load 'rjsx-mode
+    (define-key rjsx-mode-map (kbd "M-,") nil)
+    (define-key rjsx-mode-map (kbd "M-.") nil)
+    (define-key rjsx-mode-map (kbd "M-/") nil)
     (define-key rjsx-mode-map "<" nil)
     (define-key rjsx-mode-map (kbd "C-d") nil)
     (define-key rjsx-mode-map ">" nil))
@@ -546,9 +562,10 @@
   (emmet-mode)
   (setq emmet-expand-jsx-className? t) ;; default nil
   (setq js-indent-level 2)
-  (setq sgml-basic-offset 2)
+  ;; (setq sgml-basic-offset 2)
   (setq js-switch-indent-offset 2)
   (setq js2-strict-missing-semi-warning nil)
+  (setq tab-width 4)
   ;; (add-hook 'emmet-mode-hook (lambda () (setq emmet-indent-after-insert nil)))
 )
 
@@ -603,7 +620,7 @@
   ;; (setq web-mode-script-padding 2)
   ;; (setq web-mode-style-padding 2)
   ;; (setq web-mode-block-padding 2)
-  (setq web-mode-markup-indent-offset 2)
+  ;; (setq web-mode-markup-indent-offset 2)
   ;; (setq current-coding-style 'default)
   (setq web-mode-enable-auto-pairing t)
   (setq web-mode-enable-css-colorization t)
@@ -613,7 +630,7 @@
   (setq web-mode-code-indent-offset 2)
   (setq web-mode-attr-indent-offset 2)
   (setq web-mode-comment-style 2)
-  ;; (setq web-mode-indent-style 2)
+  (setq web-mode-indent-style 2)
   (setq web-mode-tag-auto-close-style t)
   (setq web-mode-enable-auto-indentation t)
   (setq web-mode-enable-auto-opening t)
@@ -680,6 +697,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(company-lsp-cache-candidates 'auto t)
+ '(dumb-jump-selector 'ivy t)
  '(package-selected-packages
    '(ag yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode eglot dumb-jump company-lsp company-irony)))
 (custom-set-faces
