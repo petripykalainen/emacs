@@ -1,44 +1,45 @@
-(setq gc-cons-threshold 100000000)
+;;(setq gc-cons-threshold 100000000)
 ;;(load "~/.emacs.d/lisp/my-abbrev.el")
+(setq gc-cons-threshold 100000000)
 
 (require 'package)
+
 (setq package-enable-at-startup nil)
 
-;; PACKAGES 
-(setq package-list '(ivy flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line js2-mode rjsx-mode use-package xah-find org-bullets lsp-mode company-lsp spacemacs-theme smart-mode-line eglot))
 ;; MELPA
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
        (proto (if no-ssl "http" "https")))
-  ;;   (when no-ssl
-  ;;     (warn "\
-  ;; Your version of Emacs does not support SSL connections,
-  ;; which is unsafe because it allows man-in-the-middle attacks.
-  ;; There are two things you can do about this warning:
-  ;; 1. Install an Emacs version that does support SSL and be safe.
-  ;; 2. Remove this warning from your init file so you won't see it again."))
+  (when no-ssl
+    (warn "\
+Your version of Emacs does not support SSL connections,
+which is unsafe because it allows man-in-the-middle attacks.
+There are two things you can do about this warning:
+1. Install an Emacs version that does support SSL and be safe.
+2. Remove this warning from your init file so you won't see it again."))
   ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
   (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
   ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
   (when (< emacs-major-version 24)
     ;; For important compatibility libraries like cl-lib
     (add-to-list 'package-archives (cons "gnu" (concat proto "://elpa.gnu.org/packages/")))))
-
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
 (package-initialize)
+
+;; PACKAGES 
+(setq package-list '(ivy flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line js2-mode rjsx-mode use-package xah-find org-bullets lsp-mode company-lsp spacemacs-theme smart-mode-line eglot dockerfile-mode))
 
 (unless package-archive-contents
   (package-refresh-contents))
-;; install the missing packages
+
+;; Install the missing packages
 (dolist (package package-list)
   (unless (package-installed-p package)
     (package-install package)))
 
 (eval-when-compile
   (require 'use-package))
+
+(setq use-package-always-ensure t)
 
 ;; Setup
 (defun petri-general-settings ()
@@ -52,7 +53,7 @@
     )
   ;; (setq tab-always-indent 'complete)
   (setq column-number-mode t)
-  (setq mode-line-position '((line-number-mode ("%l " (column-number-mode ": %c")))))
+  (setq mode-line-position '((line-number-mode ("%l " (column-number-mode ": %c"))))) 
   (setq-default frame-title-format "%f")
   (when (version<="26.0.50" emacs-version )
     (global-display-line-numbers-mode))
@@ -102,7 +103,7 @@
   ;; (toggle-frame-maximized)
   ;; Defalias
   (defalias 'list-buffers 'ibuffer)
-  ;; (defalias 'isearch-forward 'swiper)
+  (defalias 'isearch-forward 'swiper)
   ;; (defalias 'query-replace 'replace-string)
   ;; (defalias 'xah-insert-date 'petri-insert-date)
   ;; Dired
@@ -111,21 +112,38 @@
   ;; Also auto refresh dired, but be quiet about it
   (setq global-auto-revert-non-file-buffers t)
   (setq auto-revert-verbose nil)
-  (load-theme 'spacemacs-dark t)
+  (load-theme 'spacemacs-dark t) 
+  (set-face-attribute 'mode-line-buffer-id nil :foreground "black")
+  (set-face-attribute 'mode-line nil :background "DarkGoldenrod2" :foreground "black")
   (petri-flycheck-colors)
   (eldoc-mode 1)
 )
 
+(use-package diminish
+  :diminish eldoc-mode
+)
+
+(use-package auto-compile
+  :init
+  (setq load-prefer-newer t)
+  :config
+  (auto-compile-on-load-mode) 
+  (auto-compile-on-save-mode)
+)
+
 (use-package org-bullets
-  :ensure t
   :init
   (setq org-bullets-bullet-list
 	'("◉" "◎" "<img draggable="false" class="emoji" alt="⚫" src="https://s0.wp.com/wp-content/mu-plugins/wpcom-smileys/twemoji/2/svg/26ab.svg">" "○" "►" "◇"))
   :config
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
+
+;; (require 'xah-fly-keys)
+;; (xah-fly-keys 1)
+;; (xah-fly-keys-set-layout "qwerty") ; required
 (use-package xah-fly-keys
-  :ensure t
+  :diminish xah-fly-keys
   :config
   (xah-fly-keys-set-layout "qwerty") ; required
   ;; possible layout values:
@@ -267,7 +285,6 @@
       (setq-local flycheck-javascript-eslint-executable eslint))))
 
 (use-package flycheck
-  :ensure t
   :config
   (setq flycheck-indication-mode nil)
   (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp javascript-jshint json-jsonlint))
@@ -278,7 +295,6 @@
 )
 
 (use-package flycheck-pos-tip
-  :ensure t
   :config
   (flycheck-pos-tip-mode 1)
   (setq pos-tip-background-color "red")
@@ -286,19 +302,16 @@
 )
 
 ;; (use-package flycheck-irony
-  ;; :ensure t
 ;; )
 
 ;; IVY
 (use-package ivy
-  :ensure t
   :init
   (setq ivy-use-virtual-buffers t)
   (setq ivy-count-format "(%d/%d) ")
   :config
   (ivy-mode 1)
 )
-
 
 ;; (use-package dumb-jump
   ;; :config
@@ -307,7 +320,6 @@
 
 ;; DUMB-JUMP
 (use-package dumb-jump
-  :ensure t
   :bind (("M-g o" . dumb-jump-go-other-window)
          ("M-g j" . dumb-jump-go)
          ("M-g i" . dumb-jump-go-prompt)
@@ -320,7 +332,6 @@
 
 ;; Yasnippet
 (use-package yasnippet
-  :ensure t
   :config
   (setq yas-wrap-around-region t)
   (yas-global-mode 1)
@@ -418,7 +429,6 @@
 
 ;; LSP
 (use-package lsp-mode
-  :ensure t
   :commands lsp
   :init
   (add-hook 'prog-mode-hook #'lsp)
@@ -426,22 +436,20 @@
   ;; (setq lsp-prefer-flymake nil)
   )
 
-;; (use-package lsp-ui
-;;   :ensure t
-;;   :commands lsp-ui-mode
-;;   :init
-;;   (setq
-;;    lsp-ui-flycheck-enable t
-;;    lsp-ui-doc-enable nil
-;;    lsp-ui-peek-enable nil
-;;    lsp-ui-sideline-enable nil
-;;    lsp-ui-imenu-enable nil
-;;    lsp-ui-flycheck-live-reporting nil
-;;    )
-;;   )
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :init
+  (setq
+   lsp-ui-flycheck-enable t
+   lsp-ui-doc-enable nil
+   lsp-ui-peek-enable nil
+   lsp-ui-sideline-enable nil
+   lsp-ui-imenu-enable nil
+   lsp-ui-flycheck-live-reporting nil
+   )
+  )
 
 (use-package company-lsp
-  :ensure t
   :commands company-lsp
   :config
   (setq company-lsp-cache-candidates t)
@@ -450,7 +458,6 @@
 
 ;; Eglot
 ;; (use-package eglot
-  ;; :ensure t
   ;; :config
   ;; (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . eglot))
   ;; (add-hook 'eglot--managed-mode-hook (lambda () (flymake-mode -1)))
@@ -461,7 +468,6 @@
 
 ;; Company-mode
 (use-package company
-  :ensure t
   :config
   (setq company-dabbrev-downcase 0)
   (setq company-idle-delay 0.1)
@@ -484,7 +490,6 @@
 
 ;; IRONY
 ;; (use-package irony
-  ;; :ensure t
   ;; :config
   ;; (add-hook 'c++-mode-hook 'irony-mode)
   ;; (add-hook 'c-mode-hook 'irony-mode)
@@ -494,7 +499,6 @@
 
 ;; WEB-MODE
 (use-package web-mode
-  :ensure t
   :config
   (add-to-list 'auto-mode-alist '("\\.erb\\'"    . web-mode))       ;; ERB
   (add-to-list 'auto-mode-alist '("\\.json\\'"   . web-mode))       ;; JSON
@@ -508,7 +512,6 @@
 )
 
 (use-package rjsx-mode
-  :ensure t
   :config
   (with-eval-after-load 'rjsx-mode
     (define-key rjsx-mode-map (kbd "M-,") nil)
@@ -523,7 +526,6 @@
 )
 
 ;; (use-package js2-mode
-  ;; :ensure t
   ;; :config
   ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
   ;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . js2-jsx-mode))
@@ -573,7 +575,6 @@
 
 ;; Emmet
 (use-package emmet-mode
-  :ensure t
   :config
   (setq emmet-move-cursor-between-quotes t) ;; default nil
   ;; (add-hook 'emmet-mode-hook (lambda () (setq emmet-indent-after-insert nil)))
@@ -593,6 +594,12 @@
   ;; `M-x package-install [ret] company`
   (company-mode +1)
 )
+
+;; Docker
+(use-package dockerfile-mode
+  :config
+  (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode))
+  )
 
 (defun petri-web-save-and-format ()
   "Runs formatting based on file type (html or js)"
@@ -697,10 +704,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(company-lsp-cache-candidates 'auto t)
- '(dumb-jump-selector 'ivy t)
  '(package-selected-packages
-   '(ag yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode eglot dumb-jump company-lsp company-irony)))
+   '(diminish auto-compile spaceline swiper dockerfile-mode company-lsp lsp-ui lsp-mode yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode dumb-jump company-irony)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
