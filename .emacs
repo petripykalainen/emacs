@@ -26,7 +26,7 @@ There are two things you can do about this warning:
 (package-initialize)
 
 ;; PACKAGES 
-(setq package-list '(ivy flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line js2-mode rjsx-mode use-package xah-find org-bullets lsp-mode company-lsp spacemacs-theme smart-mode-line eglot dockerfile-mode))
+(setq package-list '(swiper counsel ivy flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line js2-mode rjsx-mode use-package xah-find org-bullets lsp-mode company-lsp spacemacs-theme smart-mode-line eglot dockerfile-mode))
 
 (unless package-archive-contents
   (package-refresh-contents))
@@ -117,6 +117,17 @@ There are two things you can do about this warning:
   (set-face-attribute 'mode-line nil :background "DarkGoldenrod2" :foreground "black")
   (petri-flycheck-colors)
   (eldoc-mode 1)
+)
+
+(use-package wgrep
+  :config
+  (set-face-attribute 'wgrep-face nil :background "#449" :foreground "white")
+)
+
+(use-package which-key
+  :config
+  (which-key-mode)
+  (which-key-setup-minibuffer)
 )
 
 (use-package diminish
@@ -705,7 +716,7 @@ There are two things you can do about this warning:
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(diminish auto-compile spaceline swiper dockerfile-mode company-lsp lsp-ui lsp-mode yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode dumb-jump company-irony)))
+   '(wgrep which-key diminish auto-compile spaceline swiper dockerfile-mode company-lsp lsp-ui lsp-mode yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode dumb-jump company-irony)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
