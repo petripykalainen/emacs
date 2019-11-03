@@ -26,7 +26,7 @@ There are two things you can do about this warning:
 (package-initialize)
 
 ;; PACKAGES 
-(setq package-list '(swiper counsel ivy flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line js2-mode rjsx-mode use-package xah-find org-bullets lsp-mode company-lsp spacemacs-theme smart-mode-line eglot dockerfile-mode))
+(setq package-list '(swiper counsel ivy flycheck-irony flycheck flycheck-pos-tip dumb-jump company company-irony irony powerline yasnippet yasnippet-snippets flycheck-inline web-mode xah-fly-keys tide emmet-mode smart-mode-line js2-mode rjsx-mode use-package xah-find org-bullets lsp-mode company-lsp spacemacs-theme smart-mode-line eglot dockerfile-mode htmlize))
 
 (unless package-archive-contents
   (package-refresh-contents))
@@ -108,15 +108,43 @@ There are two things you can do about this warning:
   ;; (defalias 'xah-insert-date 'petri-insert-date)
   ;; Dired
   ;; Auto refresh buffers
-  (global-auto-revert-mode 1)
+  (add-hook 'dired-mode-hook 'auto-revert-mode)
+  ;; (global-auto-revert-mode 1)
   ;; Also auto refresh dired, but be quiet about it
-  (setq global-auto-revert-non-file-buffers t)
-  (setq auto-revert-verbose nil)
+  ;; (setq global-auto-revert-non-file-buffers t)
+  ;; (setq auto-revert-verbose nil)
   (load-theme 'spacemacs-dark t) 
   (set-face-attribute 'mode-line-buffer-id nil :foreground "black")
   (set-face-attribute 'mode-line nil :background "DarkGoldenrod2" :foreground "black")
   (petri-flycheck-colors)
   (eldoc-mode 1)
+)
+
+(use-package multiple-cursors
+  :config
+  (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+  (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+)
+
+
+(use-package dotenv-mode
+  :config
+  ;; for optionally supporting additional file extensions such as `.env.test' with this major mode
+  (add-to-list 'auto-mode-alist '("\\.env\\..*\\'" . dotenv-mode)) 
+)
+
+(use-package yaml-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+)
+
+;; Also run
+;; npm install -g yaml-language-server
+(use-package yaml-mode
+  :after lsp
+  :config
+  (add-hook 'yaml-mode-hook #'lsp)
 )
 
 (use-package wgrep
@@ -481,7 +509,7 @@ There are two things you can do about this warning:
 (use-package company
   :config
   (setq company-dabbrev-downcase 0)
-  (setq company-idle-delay 0.1)
+  (setq company-idle-delay 0.4)
   (setq company-minimum-prefix-length 4)
   (setq company-dabbrev-downcase nil)
   (setq company-dabbrev-other-buffers t)
@@ -517,8 +545,8 @@ There are two things you can do about this warning:
   (add-to-list 'auto-mode-alist '("\\.es6\\'"    . web-mode))       ;; ES6
   (add-to-list 'auto-mode-alist '("\\.php\\'"   . web-mode))        ;; PHP
   (add-to-list 'auto-mode-alist '("\\.blade\\.php\\'" . web-mode))  ;; Blade template
-  ;; (setq web-mode-markup-indent-offset 2)
-  ;; (setq web-mode-sql-indent-offset 2)
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-sql-indent-offset 2)
   (add-hook 'web-mode-hook 'my-web-mode-hook)
 )
 
@@ -716,7 +744,7 @@ There are two things you can do about this warning:
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(wgrep which-key diminish auto-compile spaceline swiper dockerfile-mode company-lsp lsp-ui lsp-mode yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode dumb-jump company-irony)))
+   '(multiple-cursors htmlize dotenv-mode lsp-yaml yaml-mode wgrep which-key diminish auto-compile spaceline swiper dockerfile-mode company-lsp lsp-ui lsp-mode yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode dumb-jump company-irony)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
