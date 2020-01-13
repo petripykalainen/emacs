@@ -46,7 +46,7 @@ There are two things you can do about this warning:
   (progn
     ;; make indentation commands use space only (never tab character)
     (setq-default indent-tabs-mode nil)
-    (setq-default tab-width 4)
+    (setq-default tab-width 2)
     ;; (setq-default c-basic-offset 2)
     ;; emacs 23.1 to 26, default to t
     ;; if indent-tabs-mode is t, it means it may use tab, resulting mixed space and tab
@@ -74,8 +74,8 @@ There are two things you can do about this warning:
   ;; (global-set-key [double-wheel-down] 'ignore)
   ;; (global-set-key [triple-wheel-up] 'ignore)
   ;; (global-set-key [triple-wheel-down] 'ignore)
-  (set-face-attribute 'default nil :font "Dejavu Sans Mono 11" )
-  (set-frame-font "Dejavu Sans Mono 11" nil t)
+  (set-face-attribute 'default nil :font "Dejavu Sans Mono 12" )
+  (set-frame-font "Dejavu Sans Mono 12" nil t)
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (show-paren-mode 1)
@@ -120,6 +120,11 @@ There are two things you can do about this warning:
   (eldoc-mode 1)
 )
 
+(use-package typescript-mode
+  :config
+  (setq typescript-indent-level 2)
+)
+
 (use-package multiple-cursors
   :config
   (global-set-key (kbd "C->") 'mc/mark-next-like-this)
@@ -153,6 +158,7 @@ There are two things you can do about this warning:
 )
 
 (use-package which-key
+  :diminish which-key-mode
   :config
   (which-key-mode)
   (which-key-setup-minibuffer)
@@ -371,6 +377,7 @@ There are two things you can do about this warning:
 
 ;; Yasnippet
 (use-package yasnippet
+  :diminish yas-global-mode
   :config
   (setq yas-wrap-around-region t)
   (yas-global-mode 1)
@@ -434,7 +441,8 @@ There are two things you can do about this warning:
   (setq current-coding-style 'c-style)
   
   ;; 4-space tabs
-  (setq tab-width 4)
+  ;; (setq tab-width 4)
+  (setq tab-width 2)
   (setq indent-tabs-mode nil)
 
   ;; Additional style stuff
@@ -460,7 +468,7 @@ There are two things you can do about this warning:
 (add-hook 'text-mode-hook
           '(lambda ()
              (setq indent-tabs-mode nil)
-             (setq tab-width 4)
+             (setq tab-width 2)
              (setq-default indent-line-function 'indent-to-left-margin)
              (setq-default tab-always-indent nil)
              ;; (setq indent-line-function (quote insert-tab))
@@ -472,20 +480,21 @@ There are two things you can do about this warning:
   :init
   (add-hook 'prog-mode-hook #'lsp)
   :config
-  ;; (setq lsp-prefer-flymake nil)
-  )
+  (flymake-mode-off)
+  (setq lsp-prefer-flymake nil)
+)
 
 (use-package lsp-ui
   :commands lsp-ui-mode
   :init
-  (setq
-   lsp-ui-flycheck-enable t
-   lsp-ui-doc-enable nil
-   lsp-ui-peek-enable nil
-   lsp-ui-sideline-enable nil
-   lsp-ui-imenu-enable nil
-   lsp-ui-flycheck-live-reporting nil
-   )
+  ;; (setq
+  ;;  lsp-ui-flycheck-enable t
+  ;;  lsp-ui-doc-enable nil
+  ;;  lsp-ui-peek-enable nil
+  ;;  lsp-ui-sideline-enable nil
+  ;;  lsp-ui-imenu-enable nil
+  ;;  lsp-ui-flycheck-live-reporting nil
+  ;;  )
   )
 
 (use-package company-lsp
@@ -606,7 +615,7 @@ There are two things you can do about this warning:
   ;; (setq sgml-basic-offset 2)
   (setq js-switch-indent-offset 2)
   (setq js2-strict-missing-semi-warning nil)
-  (setq tab-width 4)
+  (setq tab-width 2)
   ;; (add-hook 'emmet-mode-hook (lambda () (setq emmet-indent-after-insert nil)))
 )
 
