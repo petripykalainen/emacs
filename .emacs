@@ -120,6 +120,8 @@ There are two things you can do about this warning:
   (eldoc-mode 1)
 )
 
+(use-package fzf)
+
 (use-package typescript-mode
   :config
   (setq typescript-indent-level 2)
@@ -131,7 +133,6 @@ There are two things you can do about this warning:
   (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
   (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 )
-
 
 (use-package dotenv-mode
   :config
@@ -753,7 +754,7 @@ There are two things you can do about this warning:
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(multiple-cursors htmlize dotenv-mode lsp-yaml yaml-mode wgrep which-key diminish auto-compile spaceline swiper dockerfile-mode company-lsp lsp-ui lsp-mode yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode dumb-jump company-irony)))
+   '(fzf multiple-cursors htmlize dotenv-mode lsp-yaml yaml-mode wgrep which-key diminish auto-compile spaceline swiper dockerfile-mode company-lsp lsp-ui lsp-mode yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode dumb-jump company-irony)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
