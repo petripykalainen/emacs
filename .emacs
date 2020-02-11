@@ -109,10 +109,10 @@ There are two things you can do about this warning:
   ;; Dired
   ;; Auto refresh buffers
   (add-hook 'dired-mode-hook 'auto-revert-mode)
-  ;; (global-auto-revert-mode 1)
+  (global-auto-revert-mode 1)
   ;; Also auto refresh dired, but be quiet about it
-  ;; (setq global-auto-revert-non-file-buffers t)
-  ;; (setq auto-revert-verbose nil)
+  (setq global-auto-revert-non-file-buffers t)
+  (setq auto-revert-verbose nil)
   (load-theme 'spacemacs-dark t) 
   (set-face-attribute 'mode-line-buffer-id nil :foreground "black")
   (set-face-attribute 'mode-line nil :background "DarkGoldenrod2" :foreground "black")
