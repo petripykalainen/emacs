@@ -147,6 +147,7 @@ There are two things you can do about this warning:
 
 ;; Also run
 ;; npm install -g yaml-language-server
+
 (use-package yaml-mode
   :after lsp
   :config
@@ -338,6 +339,7 @@ There are two things you can do about this warning:
   (add-hook 'after-init-hook #'global-flycheck-mode)
   ;; (global-flycheck-mode)
   (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
 )
 
 (use-package flycheck-pos-tip
@@ -479,15 +481,22 @@ There are two things you can do about this warning:
 (use-package lsp-mode
   :commands lsp
   :init
+  ;; (setq lsp-auto-configure nil)
+  (setq lsp-prefer-flymake :none)
   (add-hook 'prog-mode-hook #'lsp)
   :config
-  (flymake-mode-off)
-  (setq lsp-prefer-flymake nil)
+  ;; (flymake-mode-off)
 )
 
 (use-package lsp-ui
   :commands lsp-ui-mode
   :init
+  ;; (setq 
+   ;; lsp-ui-doc-enable nil
+   ;; lsp-ui-peek-enable nil
+   ;; lsp-ui-sideline-enable nil
+   ;; lsp-ui-imenu-enable nil
+   ;; lsp-ui-flycheck-enable t)
   ;; (setq
   ;;  lsp-ui-flycheck-enable t
   ;;  lsp-ui-doc-enable nil
@@ -702,6 +711,7 @@ There are two things you can do about this warning:
 
 (defun my-css-hook ()
   (setq css-indent-offset 2)
+  (add-to-list 'company-backends '(company-css company-abbrev company-dabbrev))
   (emmet-mode)
 )
 
@@ -753,8 +763,9 @@ There are two things you can do about this warning:
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(lsp-prefer-flymake :none)
  '(package-selected-packages
-   '(fzf multiple-cursors htmlize dotenv-mode lsp-yaml yaml-mode wgrep which-key diminish auto-compile spaceline swiper dockerfile-mode company-lsp lsp-ui lsp-mode yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode dumb-jump company-irony)))
+   '(webkit-color-picker fzf multiple-cursors htmlize dotenv-mode lsp-yaml yaml-mode wgrep which-key diminish auto-compile spaceline swiper dockerfile-mode company-lsp lsp-ui lsp-mode yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode dumb-jump company-irony)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
