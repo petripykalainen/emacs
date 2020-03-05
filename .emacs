@@ -1,7 +1,6 @@
-;;(setq gc-cons-threshold 100000000)
-;;(load "~/.emacs.d/lisp/my-abbrev.el")
 (setq gc-cons-threshold 100000000)
-
+(add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 800000)))
+(setq read-process-output-max (* 1024 1024))
 (require 'package)
 
 (setq package-enable-at-startup nil)
@@ -40,6 +39,8 @@ There are two things you can do about this warning:
   (require 'use-package))
 
 (setq use-package-always-ensure t)
+
+(load-theme 'spacemacs-dark t)
 
 ;; Setup
 (defun petri-general-settings ()
@@ -113,11 +114,39 @@ There are two things you can do about this warning:
   ;; Also auto refresh dired, but be quiet about it
   (setq global-auto-revert-non-file-buffers t)
   (setq auto-revert-verbose nil)
-  (load-theme 'spacemacs-dark t) 
+  ;; (load-theme 'spacemacs-dark t) 
   (set-face-attribute 'mode-line-buffer-id nil :foreground "black")
   (set-face-attribute 'mode-line nil :background "DarkGoldenrod2" :foreground "black")
   (petri-flycheck-colors)
   (eldoc-mode 1)
+)
+
+(use-package hl-todo
+  :init
+  (add-hook 'after-init-hook (lambda () (setq hl-todo-keyword-faces
+   '(("TODO"   . "#ff0000")
+     ("FIXME"  . "#ff0000")
+     ("DEBUG"  . "#a020f0")
+     ("GOTCHA" . "#ff4500")
+     ("STUB"   . "#1e90ff")))))
+  ;; (setq hl-todo-keyword-faces
+  ;;       '(("HOLD" . "#d0bf8f")
+  ;;        ("TODO" . "#cc9393")
+  ;;        ("NEXT" . "#dca3a3")
+  ;;        ("THEM" . "#dc8cc3")
+  ;;        ("PROG" . "#7cb8bb")
+  ;;        ("OKAY" . "#7cb8bb")
+  ;;        ("DONT" . "#5f7f5f")
+  ;;        ("FAIL" . "#8c5353")
+  ;;        ("DONE" . "#afd8af")
+  ;;        ("NOTE" . "#d0bf8f")
+  ;;        ("KLUDGE" . "#d0bf8f")
+  ;;        ("HACK" . "#d0bf8f")
+  ;;        ("TEMP" . "#d0bf8f")
+  ;;        ("FIXME" . "#cc9393")
+  ;;        ("XXX+" . "#cc9393")))
+  :config
+  (global-hl-todo-mode 1)
 )
 
 (use-package fzf)
@@ -125,7 +154,14 @@ There are two things you can do about this warning:
 (use-package typescript-mode
   :config
   (setq typescript-indent-level 2)
+  (add-to-list 'auto-mode-alist '("\\.ts[x]?\\'" . typescript-mode))
 )
+
+(use-package tide
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
 
 (use-package multiple-cursors
   :config
@@ -185,14 +221,11 @@ There are two things you can do about this warning:
   :config
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
-
-;; (require 'xah-fly-keys)
-;; (xah-fly-keys 1)
-;; (xah-fly-keys-set-layout "qwerty") ; required
 (use-package xah-fly-keys
   :diminish xah-fly-keys
   :config
-  (xah-fly-keys-set-layout "qwerty") ; required
+  (xah-fly-keys-set-layout "qwerty") 
+  ;;required
   ;; possible layout values:
   ;; "azerty"
   ;; "azerty-be"
@@ -204,8 +237,15 @@ There are two things you can do about this warning:
   ;; "qwerty-abnt"
   ;; "qwertz"
   ;; "workman"
+  (setq xah-fly-use-meta-key nil)
   (xah-fly-keys 1)
-)
+  (define-key xah-fly-key-map (kbd "M-SPC") 'xah-fly-command-mode-activate))
+
+(defun my-highlight-line-on () (global-hl-line-mode 1))
+(defun my-highlight-line-off () (global-hl-line-mode -1))
+
+(add-hook 'xah-fly-command-mode-activate-hook 'my-highlight-line-on)
+(add-hook 'xah-fly-insert-mode-activate-hook  'my-highlight-line-off)
 
 ;; Custom keys
 (defun petri-keybind-hook ()
@@ -294,6 +334,11 @@ There are two things you can do about this warning:
   (other-window -1)
   )
 
+;; https://github.com/abo-abo/swiper/issues/1638#issuecomment-399224033
+(defun petri-counsel-ag ()
+  (interactive)
+  (counsel-ag nil default-directory))
+
 (defun place-brace ()
   (if (eq current-coding-style 'default) " {" "\n{"))
 
@@ -338,7 +383,7 @@ There are two things you can do about this warning:
   ;; (setq-default flycheck-temp-prefix ".flycheck")
   (add-hook 'after-init-hook #'global-flycheck-mode)
   ;; (global-flycheck-mode)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  ;; (setq flycheck-check-syntax-automatically '(save mode-enabled))
   (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
 )
 
@@ -481,38 +526,26 @@ There are two things you can do about this warning:
 (use-package lsp-mode
   :commands lsp
   :init
-  ;; (setq lsp-auto-configure nil)
-  (setq lsp-prefer-flymake :none)
   (add-hook 'prog-mode-hook #'lsp)
   :config
-  ;; (flymake-mode-off)
+  (flymake-mode-off)
 )
 
 (use-package lsp-ui
   :commands lsp-ui-mode
   :init
-  ;; (setq 
-   ;; lsp-ui-doc-enable nil
-   ;; lsp-ui-peek-enable nil
-   ;; lsp-ui-sideline-enable nil
-   ;; lsp-ui-imenu-enable nil
-   ;; lsp-ui-flycheck-enable t)
-  ;; (setq
-  ;;  lsp-ui-flycheck-enable t
-  ;;  lsp-ui-doc-enable nil
-  ;;  lsp-ui-peek-enable nil
-  ;;  lsp-ui-sideline-enable nil
-  ;;  lsp-ui-imenu-enable nil
-  ;;  lsp-ui-flycheck-live-reporting nil
-  ;;  )
-  )
+  (setq lsp-ui-doc-enable nil
+        lsp-ui-peek-enable nil
+        lsp-ui-sideline-enable nil
+        lsp-ui-imenu-enable nil
+         lsp-ui-flycheck-live-reporting nil
+        lsp-ui-flycheck-enable t))
 
 (use-package company-lsp
   :commands company-lsp
   :config
   (setq company-lsp-cache-candidates t)
-  ;; (push 'company-lsp company-backends)
-  )
+  (push 'company-lsp company-backends))
 
 ;; Eglot
 ;; (use-package eglot
@@ -564,6 +597,7 @@ There are two things you can do about this warning:
   (add-to-list 'auto-mode-alist '("\\.es6\\'"    . web-mode))       ;; ES6
   (add-to-list 'auto-mode-alist '("\\.php\\'"   . web-mode))        ;; PHP
   (add-to-list 'auto-mode-alist '("\\.blade\\.php\\'" . web-mode))  ;; Blade template
+  ;; (add-to-list 'auto-mode-alist '("\\.ts[x]?\\'" . web-mode))
   (setq web-mode-markup-indent-offset 2)
   (setq web-mode-sql-indent-offset 2)
   (add-hook 'web-mode-hook 'my-web-mode-hook)
@@ -626,6 +660,7 @@ There are two things you can do about this warning:
   (setq js-switch-indent-offset 2)
   (setq js2-strict-missing-semi-warning nil)
   (setq tab-width 2)
+  (electric-pair-mode t)
   ;; (add-hook 'emmet-mode-hook (lambda () (setq emmet-indent-after-insert nil)))
 )
 
@@ -765,7 +800,7 @@ There are two things you can do about this warning:
  ;; If there is more than one, they won't work right.
  '(lsp-prefer-flymake :none)
  '(package-selected-packages
-   '(webkit-color-picker fzf multiple-cursors htmlize dotenv-mode lsp-yaml yaml-mode wgrep which-key diminish auto-compile spaceline swiper dockerfile-mode company-lsp lsp-ui lsp-mode yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode dumb-jump company-irony)))
+   '(hl-todo webkit-color-picker fzf multiple-cursors htmlize dotenv-mode lsp-yaml yaml-mode wgrep which-key diminish auto-compile spaceline swiper dockerfile-mode company-lsp lsp-ui lsp-mode yasnippet-snippets xah-fly-keys xah-find web-mode use-package tide spacemacs-theme smart-mode-line rjsx-mode powerline org-bullets ivy flycheck-pos-tip flycheck-irony flycheck-inline emmet-mode dumb-jump company-irony)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
