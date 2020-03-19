@@ -1,94 +1,148 @@
-(eval-and-compile
-  (defvar petri-emacs-dir (expand-file-name user-emacs-directory)
-    "The path to the emacs.d directory.")
+#+TITLE: Emacs configuration
+#+PROPERTY: header-args :tangle yes
 
-  (defvar petri-local-dir (concat petri-emacs-dir ".local/")
-    "Root directory for local Emacs files. Use this as permanent storage for files
-  that are safe to share across systems (if this config is symlinked across
-  several computers).")
+Inspired by https://github.com/gilbertw1/bmacs and edited to fit the old .emacs config.
 
-  (defvar petri-snippet-dir (concat petri-local-dir "snippets")
-  "Snippet location")
+** Variables
+*** Directories
 
-  ;; (defvar bmacs-host-dir (concat bmacs-local-dir "@" (system-name))
-  ;;   "Directory for hostname-specific file storage. Used by `bmacs-etc-dir' and
-  ;; `bmacs-cache-dir'.")
+#+BEGIN_SRC emacs-lisp
+  (eval-and-compile
+    (defvar petri-emacs-dir (expand-file-name user-emacs-directory)
+      "The path to the emacs.d directory.")
 
-  ;; (defvar bmacs-etc-dir (concat bmacs-host-dir "/etc/")
-  ;;   "Host-namespaced directory for non-volatile storage. These are not deleted or
-  ;; tampored with by BMACS functions. Use this for dependencies like servers or
-  ;; config files that are stable (i.e. it should be unlikely that you need to delete
-  ;; them if something goes wrong).")
+    (defvar petri-local-dir (concat petri-emacs-dir ".local/")
+      "Root directory for local Emacs files. Use this as permanent storage for files
+    that are safe to share across systems (if this config is symlinked across
+    several computers).")
 
-  ;; (defvar bmacs-cache-dir (concat bmacs-host-dir "/cache/")
-  ;;   "Host-namespaced directory for volatile storage. Deleted when `bmacs/reset' is
-  ;; called. Use this for transient files that are generated on the fly like caches
-  ;; and temporary files. Anything that may need to be cleared if there are
-  ;; problems.")
+    (defvar petri-snippet-dir (concat petri-local-dir "snippets")
+    "Snippet location")
 
-  ;; (defvar bmacs-packages-dir (concat bmacs-local-dir "packages/")
-  ;;   "Where package.el and quelpa plugins (and their caches) are stored.")
+    ;; (defvar bmacs-host-dir (concat bmacs-local-dir "@" (system-name))
+    ;;   "Directory for hostname-specific file storage. Used by `bmacs-etc-dir' and
+    ;; `bmacs-cache-dir'.")
 
-  ;; (defvar bmacs-custom-dir (concat bmacs-emacs-dir "custom/")
-  ;;   "Where custom lisp files are stored")
+    ;; (defvar bmacs-etc-dir (concat bmacs-host-dir "/etc/")
+    ;;   "Host-namespaced directory for non-volatile storage. These are not deleted or
+    ;; tampored with by BMACS functions. Use this for dependencies like servers or
+    ;; config files that are stable (i.e. it should be unlikely that you need to delete
+    ;; them if something goes wrong).")
 
-  (dolist (dir (list petri-local-dir petri-snippet-dir (expand-file-name "elpa" petri-local-dir)))
-    (unless (file-directory-p dir)
-      (make-directory dir t))))
+    ;; (defvar bmacs-cache-dir (concat bmacs-host-dir "/cache/")
+    ;;   "Host-namespaced directory for volatile storage. Deleted when `bmacs/reset' is
+    ;; called. Use this for transient files that are generated on the fly like caches
+    ;; and temporary files. Anything that may need to be cleared if there are
+    ;; problems.")
 
+    ;; (defvar bmacs-packages-dir (concat bmacs-local-dir "packages/")
+    ;;   "Where package.el and quelpa plugins (and their caches) are stored.")
+
+    ;; (defvar bmacs-custom-dir (concat bmacs-emacs-dir "custom/")
+    ;;   "Where custom lisp files are stored")
+
+    (dolist (dir (list petri-local-dir petri-snippet-dir (expand-file-name "elpa" petri-local-dir)))
+      (unless (file-directory-p dir)
+        (make-directory dir t))))
+#+END_SRC
+
+** Emacs Initialization
+*** Initialization Settings
+
+Garbage collection
+
+#+BEGIN_SRC emacs-lisp
 (eval-and-compile
   (setq gc-cons-threshold 402653184
         gc-cons-percentage 0.6))
 
 (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 16777216
                                                    gc-cons-percentage 0.1)))
+#+END_SRC
 
+Let's increase the =max-lisp-eval-depth= and =max-specpdl-size= to prevent exceeding recursion limits.
+
+#+BEGIN_SRC emacs-lisp
 (setq max-lisp-eval-depth 50000)
 (setq max-specpdl-size 10000)
+#+END_SRC
 
+Now, we're going to disable double-buffering to prevent stuttering.
+
+#+BEGIN_SRC emacs-lisp
 (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
+#+END_SRC
 
+Disable certain byte compiler warnings to cut down on the noise.
+
+#+BEGIN_SRC emacs-lisp
 (setq byte-compile-warnings '(not free-vars unresolved noruntime lexical make-local))
+#+END_SRC
 
-(setq use-package-always-defer t
-      use-package-verbose t)
+*** Initialize and Add Package Sources
 
-(eval-and-compile
-  (setq package-user-dir (expand-file-name "elpa" petri-local-dir)))
+Always defer loading packages
 
-(setq load-prefer-newer noninteractive
-      package--init-file-ensured t
-      package-enable-at-startup nil)
+#+BEGIN_SRC emacs-lisp
+  (setq use-package-always-defer t
+        use-package-verbose t)
+#+END_SRC
 
-(eval-and-compile
-  (setq load-path (append load-path (directory-files package-user-dir t "^[^.]" t))))
 
-(eval-when-compile
-  (require 'package)
+#+BEGIN_SRC emacs-lisp
+  (eval-and-compile
+    (setq package-user-dir (expand-file-name "elpa" petri-local-dir)))
 
-  (unless (assoc-default "melpa" package-archives)
-    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t))
-  (unless (assoc-default "melpa-stable" package-archives)
-    (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t))
-  (unless (assoc-default "org" package-archives)
-    (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t))
+  (setq load-prefer-newer noninteractive
+        package--init-file-ensured t
+        package-enable-at-startup nil)
+#+END_SRC
 
-  (setq package-pinned-packages
-    '((evil . "melpa-stable")))
+#+BEGIN_SRC emacs-lisp
+  (eval-and-compile
+    (setq load-path (append load-path (directory-files package-user-dir t "^[^.]" t))))
+#+END_SRC
 
-  (package-initialize)
-  (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
-    (package-install 'use-package))
-  (require 'use-package)
-  (require 'bind-key)
-  (setq use-package-always-ensure t))
+#+BEGIN_SRC emacs-lisp
+  (eval-when-compile
+    (require 'package)
 
+    (unless (assoc-default "melpa" package-archives)
+      (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t))
+    (unless (assoc-default "melpa-stable" package-archives)
+      (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t))
+    (unless (assoc-default "org" package-archives)
+      (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t))
+
+    (setq package-pinned-packages
+      '((evil . "melpa-stable")))
+
+    (package-initialize)
+    (unless (package-installed-p 'use-package)
+      (package-refresh-contents)
+      (package-install 'use-package))
+    (require 'use-package)
+    (require 'bind-key)
+    (setq use-package-always-ensure t))
+#+END_SRC
+
+*** Libraries
+
+#+BEGIN_SRC emacs-lisp
 (use-package async :demand t)
 (use-package f :demand t)
 (use-package subr-x :demand t :ensure nil)
 (eval-when-compile (require 'cl-lib))
+#+END_SRC
 
+#+END_SRC
+
+** Core Settings
+*** Charset
+
+Set UTF-8 as the default coding system
+
+#+BEGIN_SRC emacs-lisp
 (when (fboundp 'set-charset-priority)
   (set-charset-priority 'unicode))
 (prefer-coding-system        'utf-8)
@@ -97,11 +151,21 @@
 (set-selection-coding-system 'utf-8)
 (setq locale-coding-system   'utf-8)
 (setq-default buffer-file-coding-system 'utf-8)
+#+END_SRC
 
+*** Backups
+
+We don't make any backups of files. This is what git is for.
+
+#+BEGIN_SRC emacs-lisp 
 (setq-default auto-save-default nil
               create-lockfiles nil
               make-backup-files nil)
+#+END_SRC      
+*** UI  
+**** Colors
 
+#+BEGIN_SRC emacs-lisp
 ;; Colors
 ;; font-lock-variable-name-face
 ;; (set-face-attribute 'default nil :foreground "#FFFFFF")
@@ -140,11 +204,24 @@
 ;; (eval-after-load 'dired
   ;; '(progn    
      ;; (set-face-attribute 'dired-directory nil :foreground "#66ccff" :height 1.2 :weight 'bold)))
+#+END_SRC
 
+**** Toolbar
+
+Disable tooltips, menubar, and scroll bar.
+
+#+BEGIN_SRC emacs-lisp
 (tooltip-mode -1)
 (menu-bar-mode -1)
 (if (fboundp 'tool-bar-mode)   (tool-bar-mode -1))
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+#+END_SRC
+
+**** Line numbers
+
+Enable line numbers
+
+#+BEGIN_SRC emacs-lisp
 
 (defun bmacs|enable-line-numbers ()
   "Enables the display of line numbers, using `display-line-numbers' (in Emacs
@@ -163,80 +240,107 @@
 (add-hook 'text-mode-hook #'bmacs|enable-line-numbers)
 (add-hook 'conf-mode-hook #'bmacs|enable-line-numbers)
 
-(setq-default
- indent-tabs-mode nil         ; don't insert tabs by default
- require-final-newline t      ; ensure newline exists at end of file
- tab-always-indent t          ; always indent line when pressing TAB (don't add tab character)
- tab-width 2                  ; default tab width of 2 characters
- tabify-regexp "^\t* [ \t]+") ; only tabify initial whitespace when converting to tabifying
+#+END_SRC
 
-;; whitespace-mode
-;; (setq-default
-;;  whitespace-line-column fill-column
-;;  whitespace-style
-;;  '(face indentation tabs tab-mark spaces space-mark newline newline-mark trailing lines-tail)
-;;  whitespace-display-mappings
-;;  '((tab-mark ?\t [?› ?\t])
-;;    (newline-mark ?\n [?¬ ?\n])
-;;    (space-mark ?\  [?·] [?.])))
+**** Whitespace
 
-(setq column-number-mode t)
-(setq mode-line-position '((line-number-mode ("%l " (column-number-mode ": %c"))))) 
-(setq-default frame-title-format "%f")
+#+BEGIN_SRC emacs-lisp
+  (setq-default
+   indent-tabs-mode nil         ; don't insert tabs by default
+   require-final-newline t      ; ensure newline exists at end of file
+   tab-always-indent t          ; always indent line when pressing TAB (don't add tab character)
+   tab-width 2                  ; default tab width of 2 characters
+   tabify-regexp "^\t* [ \t]+") ; only tabify initial whitespace when converting to tabifying
 
-;; Bigger undo
-(setq undo-limit 20000000)
-(setq undo-strong-limit 40000000)
-(global-hl-line-mode 1)
-(setq ring-bell-function 'ignore)
-(blink-cursor-mode 0)
-;; (require 'vc)
-(eval-after-load "vc" '(remove-hook 'find-file-hook 'vc-find-file-hook))
-(setq vc-handled-backends nil)
+  ;; whitespace-mode
+  ;; (setq-default
+  ;;  whitespace-line-column fill-column
+  ;;  whitespace-style
+  ;;  '(face indentation tabs tab-mark spaces space-mark newline newline-mark trailing lines-tail)
+  ;;  whitespace-display-mappings
+  ;;  '((tab-mark ?\t [?› ?\t])
+  ;;    (newline-mark ?\n [?¬ ?\n])
+  ;;    (space-mark ?\  [?·] [?.])))
+#+END_SRC
 
-;; Show paren
-(show-paren-mode 1)
+**** Misc
 
-;; Bookmarks
-(setq bookmark-save-flag 1) ; everytime bookmark is changed, automatically save it
-(setq bookmark-save-flag t) ; save bookmark when emacs quits
+#+BEGIN_SRC emacs-lisp
+  (setq column-number-mode t)
+  (setq mode-line-position '((line-number-mode ("%l " (column-number-mode ": %c"))))) 
+  (setq-default frame-title-format "%f")
 
-;; Startup
-(setq inhibit-splash-screen t)
-(bookmark-bmenu-list)
-(switch-to-buffer "*Bookmark List*")
-;; (toggle-frame-maximized)
+  ;; Bigger undo
+  (setq undo-limit 20000000)
+  (setq undo-strong-limit 40000000)
+  (global-hl-line-mode 1)
+  (setq ring-bell-function 'ignore)
+  (blink-cursor-mode 0)
+  ;; (require 'vc)
+  (eval-after-load "vc" '(remove-hook 'find-file-hook 'vc-find-file-hook))
+  (setq vc-handled-backends nil)
 
-;; Defalias
+  ;; Show paren
+  (show-paren-mode 1)
 
-(fset 'list-buffers 'ibuffer)
-(fset 'isearch-forward 'swiper)
-;;(defalias 'query-replace 'replace-string)
-;; (defalias 'xah-insert-date 'petri-insert-date)
+  ;; Bookmarks
+  (setq bookmark-save-flag 1) ; everytime bookmark is changed, automatically save it
+  (setq bookmark-save-flag t) ; save bookmark when emacs quits
 
-;; Dired
-;; Auto refresh buffers
-(add-hook 'dired-mode-hook 'auto-revert-mode)
-(global-auto-revert-mode 1)
-;; Also auto refresh dired, but be quiet about it
-(setq global-auto-revert-non-file-buffers t)
-(setq auto-revert-verbose nil)
+  ;; Startup
+  (setq inhibit-splash-screen t)
+  (bookmark-bmenu-list)
+  (switch-to-buffer "*Bookmark List*")
+  ;; (toggle-frame-maximized)
 
-(eldoc-mode 1)
+  ;; Defalias
 
+  (fset 'list-buffers 'ibuffer)
+  (fset 'isearch-forward 'swiper)
+  ;;(defalias 'query-replace 'replace-string)
+  ;; (defalias 'xah-insert-date 'petri-insert-date)
+
+  ;; Dired
+  ;; Auto refresh buffers
+  (add-hook 'dired-mode-hook 'auto-revert-mode)
+  (global-auto-revert-mode 1)
+  ;; Also auto refresh dired, but be quiet about it
+  (setq global-auto-revert-non-file-buffers t)
+  (setq auto-revert-verbose nil)
+
+  (eldoc-mode 1) 
+#+END_SRC  
+*** Editor 
+**** Bookmarks
+
+#+BEGIN_SRC emacs-lisp 
 (setq-default
  bookmark-save-flag 1)  ; automatically save bookmarks after every change
+#+END_SRC
+
+**** Formatting
+     
+#+BEGIN_SRC emacs-lisp
 
 (setq-default
  fill-column 100                  ; set line-wrapping column to 100
  word-wrap t                     ; enable word wrap so lines are wrapped at nearest space
 )
 
+#+END_SRC
+
+**** Scrolling
+
+#+BEGIN_SRC emacs-lisp
 (setq-default
  scroll-conservatively 1001             ; always scroll to the point no matter how far away (don't recenter)
  scroll-margin 0                        ; don't automatically scroll to retain a margin
  scroll-preserve-screen-position t)     ; preserve point location on screen when scrolling
+#+END_SRC
 
+**** Whitespace
+
+#+BEGIN_SRC emacs-lisp
 (setq-default
  indent-tabs-mode nil         ; don't insert tabs by default
  require-final-newline t      ; ensure newline exists at end of file
@@ -253,8 +357,15 @@
  '((tab-mark ?\t [?› ?\t])
    (newline-mark ?\n [?¬ ?\n])
    (space-mark ?\  [?·] [?.])))
-
+#+END_SRC
+*** Font
+    
+#+BEGIN_SRC emacs-lisp
 (set-face-attribute 'default nil :font "Dejavu Sans Mono 12" )
+#+END_SRC
+
+*** Functions
+#+BEGIN_SRC emacs-lisp
 
 ;; https://with-emacs.com/posts/tips/quit-current-context/
 (defun keyboard-quit-context+ ()
@@ -386,8 +497,15 @@
   (eldoc-mode +1)
   (company-mode +1))
 
+#+END_SRC 
+*** Keybinds
+#+BEGIN_SRC emacs-lisp
 (global-set-key [remap keyboard-quit] #'keyboard-quit-context+)
+#+END_SRC 
+*** Hooks
+**** Text mode
 
+#+BEGIN_SRC emacs-lisp
 (defun my-text-mode-hook ()
   (interactive)
   (setq indent-tabs-mode nil)
@@ -396,38 +514,44 @@
   (setq-default tab-always-indent nil))
 
 (add-hook 'text-mode-hook 'my-text-mode-hook)
+#+END_SRC
 
-(defun my-js-mode-hook ()
-  (interactive)
-  ;; (setq js2-strict-missing-semi-warning nil)
-  ;; (setq js2-mode-show-parse-errors nil)
-  ;; (setq js2-mode-show-strict-warnings nil)
+**** JavaScript
+#+BEGIN_SRC emacs-lisp
+  (defun my-js-mode-hook ()
+    (interactive)
+    ;; (setq js2-strict-missing-semi-warning nil)
+    ;; (setq js2-mode-show-parse-errors nil)
+    ;; (setq js2-mode-show-strict-warnings nil)
 
-  ;; (set-face-attribute 'js2-function-call nil :foreground "#DCDBAC")
-  ;; (set-face-attribute 'js2-external-variable nil :foreground "#92DBFC")
-  ;; (set-face-attribute 'js2-function-param nil :foreground "#92DBFC")
-  ;; (set-face-attribute 'rjsx-tag nil :foreground "#32C1A9")
-  ;; (set-face-attribute 'rjsx-tag-bracket-face nil :foreground "#7D7D7D")
-  ;; (set-face-attribute 'font-lock-variable-name-face nil :foreground "#92DBFC")
-  ;; (set-face-attribute 'default nil :foreground "#92DBFC")
-  ;; (set-face-attribute 'default nil :foreground "#FFF")
-  ;; (set-face-attribute 'font-lock-keyword-face nil :foreground "#C080B5")
+    ;; (set-face-attribute 'js2-function-call nil :foreground "#DCDBAC")
+    ;; (set-face-attribute 'js2-external-variable nil :foreground "#92DBFC")
+    ;; (set-face-attribute 'js2-function-param nil :foreground "#92DBFC")
+    ;; (set-face-attribute 'rjsx-tag nil :foreground "#32C1A9")
+    ;; (set-face-attribute 'rjsx-tag-bracket-face nil :foreground "#7D7D7D")
+    ;; (set-face-attribute 'font-lock-variable-name-face nil :foreground "#92DBFC")
+    ;; (set-face-attribute 'default nil :foreground "#92DBFC")
+    ;; (set-face-attribute 'default nil :foreground "#FFF")
+    ;; (set-face-attribute 'font-lock-keyword-face nil :foreground "#C080B5")
 
-  ;; use eslint with rjsx-mode for jsx files
-  ;; (add-hook 'js-mode-hook #'my/use-eslint-from-node-modules)
-  ;; (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
+    ;; use eslint with rjsx-mode for jsx files
+    ;; (add-hook 'js-mode-hook #'my/use-eslint-from-node-modules)
+    ;; (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
 
-  (emmet-mode)
-  (setq emmet-expand-jsx-className? t) ;; default nil
-  (setq js-indent-level 2)
-  ;; (setq sgml-basic-offset 2)
-  (setq js-switch-indent-offset 2)
-  (setq js2-strict-missing-semi-warning nil)
-  (setq tab-width 2)
-  (electric-pair-mode t)
-  ;; (add-hook 'emmet-mode-hook (lambda () (setq emmet-indent-after-insert nil)))
-)
+    (emmet-mode)
+    (setq emmet-expand-jsx-className? t) ;; default nil
+    (setq js-indent-level 2)
+    ;; (setq sgml-basic-offset 2)
+    (setq js-switch-indent-offset 2)
+    (setq js2-strict-missing-semi-warning nil)
+    (setq tab-width 2)
+    (electric-pair-mode t)
+    ;; (add-hook 'emmet-mode-hook (lambda () (setq emmet-indent-after-insert nil)))
+  )
+#+END_SRC
 
+**** HTML
+#+BEGIN_SRC emacs-lisp
 (defun my-web-mode-hook ()
   "Hooks for Web mode."
   (interactive)
@@ -460,14 +584,28 @@
   (setq emmet-expand-jsx-className? nil) ;; default nil
 )
 
+#+END_SRC
+**** CSS
+
+#+BEGIN_SRC emacs-lisp
 (defun my-css-hook ()
   (setq css-indent-offset 2)
   (add-to-list 'company-backends '(company-css company-abbrev company-dabbrev))
   (emmet-mode))
 
 (add-hook 'css-mode-hook 'my-css-hook)
+#+END_SRC
+** Core Packages
+*** bind-key
+    #+BEGIN_SRC emacs-lisp 
+    (use-package bind-key)
+    #+END_SRC
 
-(use-package bind-key)
+*** Xah-fly-keys 
+    
+Best keyboard layout
+
+#+BEGIN_SRC emacs-lisp 
 
 (defun my-xfk-command-color () 
 (set-face-attribute 'mode-line nil :background "DarkGoldenrod2" :foreground "black"))
@@ -488,13 +626,19 @@
   :hook 
   ('xah-fly-command-mode-activate-hook 'my-xfk-command-color)
   ('xah-fly-insert-mode-activate-hook  'my-xfk-insert-color))
+#+END_SRC 
+*** Spacemacs-theme
 
+#+BEGIN_SRC emacs-lisp
 (use-package spacemacs-common
     :ensure spacemacs-theme
     :config (load-theme 'spacemacs-dark t)
     (set-face-attribute 'mode-line-buffer-id nil :foreground "black")
     (set-face-attribute 'mode-line nil :background "DarkGoldenrod2" :foreground "black"))
+#+END_SRC
+*** HL-todo
 
+#+BEGIN_SRC emacs-lisp
 (use-package hl-todo
   :init
   (add-hook 'after-init-hook (lambda () (setq hl-todo-keyword-faces
@@ -522,9 +666,14 @@
   :config
   (global-hl-todo-mode 1)
 )
-
+#+END_SRC
+*** FZF
+#+BEGIN_SRC emacs-lisp
 (use-package fzf)
+#+END_SRC
+*** Typescript
 
+#+BEGIN_SRC emacs-lisp
 (use-package typescript-mode
   :config
   (setq typescript-indent-level 2)
@@ -536,13 +685,18 @@
   :hook ((typescript-mode . tide-setup)
          (typescript-mode . tide-hl-identifier-mode)
          (before-save . tide-format-before-save)))
+#+END_SRC
+*** Multiple cursors
 
+#+BEGIN_SRC emacs-lisp
 (use-package multiple-cursors
   :config
   (global-set-key (kbd "C->") 'mc/mark-next-like-this)
   (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
   (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
-
+#+END_SRC
+*** dotenv, yaml etc
+#+BEGIN_SRC emacs-lisp
 (use-package dotenv-mode
   :config
   ;; for optionally supporting additional file extensions such as `.env.test' with this major mode
@@ -559,94 +713,123 @@
 (use-package dockerfile-mode
   :config
   (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+#+END_SRC
+*** wgrep
+    #+BEGIN_SRC emacs-lisp
+    (use-package wgrep
+    :config
+    (set-face-attribute 'wgrep-face nil :background "#449" :foreground "white"))
+    #+END_SRC
 
-(use-package wgrep
-:config
-(set-face-attribute 'wgrep-face nil :background "#449" :foreground "white"))
-
+*** Which key
+#+BEGIN_SRC emacs-lisp
 (use-package which-key
   :diminish which-key-mode
   :config
   (which-key-mode)
   (which-key-setup-minibuffer))
-
+#+END_SRC
+*** Diminish
+#+BEGIN_SRC emacs-lisp
 (use-package diminish
   :diminish eldoc-mode)
+#+END_SRC
+*** Org bullets
+# #+BEGIN_SRC emacs-lisp
+# (use-package org-bullets
+  # :init
+  # (setq org-bullets-bullet-list
+	# '("◉" "◎" "<img draggable="false" class="emoji" alt="⚫" src="https://s0.wp.com/wp-content/mu-plugins/wpcom-smileys/twemoji/2/svg/26ab.svg">" "○" "►" "◇"))
+  # :config
+  # (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+# #+END_SRC
+*** add-node-modules-path
+    #+BEGIN_SRC emacs-lisp
+    
+    (use-package add-node-modules-path
+    :ensure t
+    :config
+    ;; automatically run the function when web-mode starts
+    ;;(eval-after-load 'rjsx-mode
+    (add-hook 'js-mode-hook 'add-node-modules-path)
+    (add-hook 'typescript-mode-hook 'add-node-modules-path))
 
-(use-package add-node-modules-path
-:ensure t
-:config
-;; automatically run the function when web-mode starts
-;;(eval-after-load 'rjsx-mode
-(add-hook 'js-mode-hook 'add-node-modules-path)
-(add-hook 'typescript-mode-hook 'add-node-modules-path))
+    #+END_SRC
+*** Flycheck
+#+BEGIN_SRC emacs-lisp
+  (autoload 'pkg-info-version-info "pkg-info")
 
-(autoload 'pkg-info-version-info "pkg-info")
+  (use-package flycheck
+    :commands (flycheck-mode flycheck-list-errors flycheck-buffer)
+    :init (add-hook 'prog-mode-hook 'flycheck-mode)
+    :config
+    (petri-flycheck-colors)
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
+    (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp javascript-jshint json-jsonlint))
+    (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
+    (flycheck-add-mode 'javascript-eslint 'typescript-mode)
+  )
 
-(use-package flycheck
-  :commands (flycheck-mode flycheck-list-errors flycheck-buffer)
-  :init (add-hook 'prog-mode-hook 'flycheck-mode)
-  :config
-  (petri-flycheck-colors)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp javascript-jshint json-jsonlint))
-  (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
-  (flycheck-add-mode 'javascript-eslint 'typescript-mode)
-)
+  (use-package flycheck-pos-tip
+    :demand t
+    :after flycheck
+    :config
+    (setq flycheck-pos-tip-timeout 10
+          flycheck-display-errors-delay 0.5)
+    (flycheck-pos-tip-mode +1))
 
-(use-package flycheck-pos-tip
-  :demand t
-  :after flycheck
-  :config
-  (setq flycheck-pos-tip-timeout 10
-        flycheck-display-errors-delay 0.5)
-  (flycheck-pos-tip-mode +1))
+    (defun petri-flycheck-colors ()
+      "sets better visual for error, warning and info"
+      (interactive)
+         (set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
+         (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "black" :underline nil :weight 'bold)
+         (set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black" :underline nil :weight 'bold))
 
-  (defun petri-flycheck-colors ()
-    "sets better visual for error, warning and info"
-    (interactive)
-       (set-face-attribute 'flycheck-error nil :background "dark red" :foreground "white" :underline nil :weight 'bold)
-       (set-face-attribute 'flycheck-info nil :background "forest green" :foreground "black" :underline nil :weight 'bold)
-       (set-face-attribute 'flycheck-warning nil :background "gold" :foreground "black" :underline nil :weight 'bold))
+    ;; (use-package flycheck
+    ;;   :commands (global-flycheck-mode)
+    ;;   :init
+    ;;   (global-flycheck-mode)
+    ;;   :config
+    ;;   (petri-flycheck-colors)
+    ;;   (setq flycheck-indication-mode nil)
+    ;;   (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp javascript-jshint json-jsonlint))
+    ;;   (setq flycheck-check-syntax-automatically '(save mode-enabled))
+    ;;   (flycheck-add-mode 'javascript-eslint 'rjsx-mode))
 
-  ;; (use-package flycheck
-  ;;   :commands (global-flycheck-mode)
-  ;;   :init
-  ;;   (global-flycheck-mode)
-  ;;   :config
-  ;;   (petri-flycheck-colors)
-  ;;   (setq flycheck-indication-mode nil)
-  ;;   (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp javascript-jshint json-jsonlint))
-  ;;   (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  ;;   (flycheck-add-mode 'javascript-eslint 'rjsx-mode))
+    ;; (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
 
-  ;; (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
+    ;; (use-package flycheck-pos-tip
+    ;;   :config
+    ;;   (flycheck-pos-tip-mode 1)
+    ;;   (setq pos-tip-background-color "red")
+    ;;   (setq pos-tip-foreground-color "white") 
+    ;; )
+#+END_SRC
+*** Ivy
 
-  ;; (use-package flycheck-pos-tip
-  ;;   :config
-  ;;   (flycheck-pos-tip-mode 1)
-  ;;   (setq pos-tip-background-color "red")
-  ;;   (setq pos-tip-foreground-color "white") 
-  ;; )
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy
+    :init
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-count-format "(%d/%d) ")
+    :config
+    (ivy-mode 1))
 
-(use-package ivy
-  :init
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-count-format "(%d/%d) ")
-  :config
-  (ivy-mode 1))
+  (use-package swiper
+    :after ivy
+    :config
+    (fset 'isearch-forward 'swiper))
 
-(use-package swiper
-  :after ivy
-  :config
-  (fset 'isearch-forward 'swiper))
+  (use-package counsel
+    :after ivy
+    ;; :config 
+    ;; (counsel-mode)
+  )
+#+END_SRC
 
-(use-package counsel
-  :after ivy
-  ;; :config 
-  ;; (counsel-mode)
-)
+*** Dumb jump
 
+#+BEGIN_SRC emacs-lisp 
 (use-package dumb-jump
   :commands (dumb-jump-go dumb-jump-go-other-window dumb-jump-go-prompti dumb-jump-go-prefer-external dumb-jump-go-prefer-external-other-window )
   :bind (("M-g o" . dumb-jump-go-other-window)
@@ -659,6 +842,10 @@
   (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
 )
 
+#+END_SRC
+*** Yasnippet
+
+#+BEGIN_SRC emacs-lisp
 (use-package yasnippet
   :diminish yas-global-mode
   :config
@@ -668,14 +855,22 @@
   (setq yas-wrap-around-region t)
   (yas-global-mode 1)
 )
+#+END_SRC
+*** LSP
+#+BEGIN_SRC emacs-lisp
 
-(use-package lsp-mode
-  :commands lsp
-  :init
-  (add-hook 'prog-mode-hook #'lsp)
-  :config
-  (setq lsp-diagnostic-package :none)
-)
+  (use-package lsp-mode
+    :commands lsp
+    :init
+    (add-hook 'prog-mode-hook #'lsp)
+    :config
+    (setq lsp-diagnostic-package :none)
+  )
+
+#+END_SRC
+
+*** Company
+#+BEGIN_SRC emacs-lisp
 
 (use-package company
   :config
@@ -704,22 +899,34 @@
   (setq company-lsp-cache-candidates t)
   (push 'company-lsp company-backends))
 
-(use-package web-mode
-  :config
-  (add-to-list 'auto-mode-alist '("\\.erb\\'"    . web-mode))       ;; ERB
-  ;; (add-to-list 'auto-mode-alist '("\\.json\\'"   . web-mode))       ;; JSON
-  (add-to-list 'auto-mode-alist '("\\.html?\\'"  . web-mode))       ;; Plain HTML
-  (add-to-list 'auto-mode-alist '("\\.es6\\'"    . web-mode))       ;; ES6
-  (add-to-list 'auto-mode-alist '("\\.php\\'"   . web-mode))        ;; PHP
-  (add-to-list 'auto-mode-alist '("\\.blade\\.php\\'" . web-mode))  ;; Blade template
-  ;; (add-to-list 'auto-mode-alist '("\\.ts[x]?\\'" . web-mode))
-  (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-sql-indent-offset 2)
-  (add-hook 'web-mode-hook 'my-web-mode-hook))
+#+END_SRC
 
-(use-package json-mode
-:mode ("\\.json\\'" . json-mode))
+*** Web-mode
 
+#+BEGIN_SRC emacs-lisp
+  (use-package web-mode
+    :config
+    (add-to-list 'auto-mode-alist '("\\.erb\\'"    . web-mode))       ;; ERB
+    ;; (add-to-list 'auto-mode-alist '("\\.json\\'"   . web-mode))       ;; JSON
+    (add-to-list 'auto-mode-alist '("\\.html?\\'"  . web-mode))       ;; Plain HTML
+    (add-to-list 'auto-mode-alist '("\\.es6\\'"    . web-mode))       ;; ES6
+    (add-to-list 'auto-mode-alist '("\\.php\\'"   . web-mode))        ;; PHP
+    (add-to-list 'auto-mode-alist '("\\.blade\\.php\\'" . web-mode))  ;; Blade template
+    ;; (add-to-list 'auto-mode-alist '("\\.ts[x]?\\'" . web-mode))
+    (setq web-mode-markup-indent-offset 2)
+    (setq web-mode-sql-indent-offset 2)
+    (add-hook 'web-mode-hook 'my-web-mode-hook))
+#+END_SRC
+
+*** JSON-mode
+    #+BEGIN_SRC emacs-lisp
+    (use-package json-mode
+    :mode ("\\.json\\'" . json-mode))
+    #+END_SRC
+
+*** RJSX
+
+#+BEGIN_SRC emacs-lisp
 (use-package rjsx-mode
   :config
   (with-eval-after-load 'rjsx-mode
@@ -732,13 +939,22 @@
   (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . rjsx-mode)))
   (add-hook 'js-mode-hook 'my-js-mode-hook)
 
+#+END_SRC
+
+*** Emmet
+
+#+BEGIN_SRC emacs-lisp
 (use-package emmet-mode
   :config
   (setq emmet-move-cursor-between-quotes t) ;; default nil
   ;; (add-hook 'emmet-mode-hook (lambda () (setq emmet-indent-after-insert nil)))
   (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;; indent 2 spaces.
 )
+#+END_SRC
+*** Indentation
+Indentation
 
+#+BEGIN_SRC emacs-lisp
 (setq-default tab-width 2
               c-basic-offset 4
               coffee-tab-width 2
@@ -753,3 +969,4 @@
 
 (add-hook 'js2-mode-hook (lambda ()
                            (setq js2-basic-offset 2)))
+#+END_SRC
