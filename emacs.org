@@ -597,9 +597,46 @@ Enable line numbers
 #+END_SRC
 ** Core Packages
 *** bind-key
-    #+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
     (use-package bind-key)
-    #+END_SRC
+#+END_SRC
+
+*** counsel-etags
+#+BEGIN_SRC emacs-lisp
+(use-package counsel-etags
+  :ensure t
+  :bind (("C-]" . counsel-etags-find-tag-at-point))
+  :init
+  (add-hook 'prog-mode-hook
+        (lambda ()
+          (add-hook 'after-save-hook
+            'counsel-etags-virtual-update-tags 'append 'local)))
+  :config
+  (setq counsel-etags-update-interval 60)
+  (push "build" counsel-etags-ignore-directories))
+#+END_SRC
+
+*** counsel-gtags
+#+BEGIN_SRC emacs-lisp
+(use-package counsel-gtags
+  :ensure t
+  :diminish '(counsel-gtags-mode . "Gtags")
+  :init
+  (add-hook 'prog-mode-hook 'counsel-gtags-mode)
+  :config
+  (setq
+  counsel-gtags-auto-update t
+  counsel-gtags-path-style 'root))
+#+END_SRC
+
+*** ggtags
+#+BEGIN_SRC emacs-lisp
+(use-package ggtags
+  :ensure t
+  :diminish t
+  :init
+  (add-hook 'prog-mode-hook 'ggtags-mode))
+#+END_SRC
 
 *** Xah-fly-keys 
     
