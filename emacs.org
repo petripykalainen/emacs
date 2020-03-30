@@ -947,25 +947,38 @@ Best keyboard layout
 *** Web-mode
 
 #+BEGIN_SRC emacs-lisp
-  (use-package web-mode
-    :config
-    (add-to-list 'auto-mode-alist '("\\.erb\\'"    . web-mode))       ;; ERB
-    ;; (add-to-list 'auto-mode-alist '("\\.json\\'"   . web-mode))       ;; JSON
-    (add-to-list 'auto-mode-alist '("\\.html?\\'"  . web-mode))       ;; Plain HTML
-    (add-to-list 'auto-mode-alist '("\\.es6\\'"    . web-mode))       ;; ES6
-    (add-to-list 'auto-mode-alist '("\\.php\\'"   . web-mode))        ;; PHP
-    (add-to-list 'auto-mode-alist '("\\.blade\\.php\\'" . web-mode))  ;; Blade template
-    ;; (add-to-list 'auto-mode-alist '("\\.ts[x]?\\'" . web-mode))
-    (setq web-mode-markup-indent-offset 2)
-    (setq web-mode-sql-indent-offset 2)
-    (add-hook 'web-mode-hook 'my-web-mode-hook))
+(use-package web-mode
+  :mode ("\\.hbs\\'"
+       "\\.html?\\'"
+       "\\.erb\\'"
+       "\\.es6\\'"
+       "\\.jsx\\'"
+       "\\.vue\\'"
+       "\\.blade\\.php\\'")
+  :config
+  (setq web-mode-engines-alist
+    '(("php"    . "\\.phtml\\'")
+      ("blade"  . "\\.blade\\.")))
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-sql-indent-offset 2)
+  (add-hook 'web-mode-hook 'my-web-mode-hook))
+#+END_SRC
+
+*** editorconfig
+#+BEGIN_SRC emacs-lisp
+(use-package editorconfig
+  :ensure t
+  :config
+  (editorconfig-mode 1))
+  (add-hook 'editorconfig-after-apply-functions
+  (lambda (props) (setq web-mode-block-padding 0)))
 #+END_SRC
 
 *** JSON-mode
-    #+BEGIN_SRC emacs-lisp
-    (use-package json-mode
-    :mode ("\\.json\\'" . json-mode))
-    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package json-mode
+  :mode ("\\.json\\'" . json-mode))
+#+END_SRC
 
 *** RJSX
 
