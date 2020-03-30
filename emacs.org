@@ -412,7 +412,7 @@ Enable line numbers
   (if (string-equal (or "js" "jsx" "ts") (file-name-extension buffer-file-name))
       ;; (message "Doing tide formatting")
       (tide-format)
-    (if (string-equal (or  "html" "xhtml" "php") (file-name-extension buffer-file-name))
+    (if (string-equal (or  "html" "xhtml") (file-name-extension buffer-file-name))
         ;; (message "Doing html web formatting")
 	(web-mode-buffer-indent))))
 
