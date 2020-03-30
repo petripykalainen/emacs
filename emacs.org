@@ -703,6 +703,12 @@ Best keyboard layout
   :config
   (global-hl-todo-mode 1)
 )
+*** Avy
+#+BEGIN_SRC emacs-lisp
+(use-package avy
+ :bind ("C-;" . avy-goto-char))
+#+END_SRC
+
 #+END_SRC
 *** FZF
 #+BEGIN_SRC emacs-lisp
