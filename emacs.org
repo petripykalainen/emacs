@@ -556,7 +556,7 @@ Enable line numbers
     "Hooks for Web mode."
     (interactive)
     (company-mode)
-    (add-hook 'before-save-hook #'petriweb-format-before-save)
+    ;; (add-hook 'before-save-hook #'petriweb-format-before-save)
     ;; (setq web-mode-script-padding 2)
     ;; (setq web-mode-style-padding 2)
     ;; (setq web-mode-block-padding 2)
@@ -703,13 +703,14 @@ Best keyboard layout
   :config
   (global-hl-todo-mode 1)
 )
+#+END_SRC
+
 *** Avy
 #+BEGIN_SRC emacs-lisp
 (use-package avy
  :bind ("C-;" . avy-goto-char))
 #+END_SRC
 
-#+END_SRC
 *** FZF
 #+BEGIN_SRC emacs-lisp
 (use-package fzf)
@@ -743,15 +744,10 @@ Best keyboard layout
 (use-package dotenv-mode
   :config
   ;; for optionally supporting additional file extensions such as `.env.test' with this major mode
-  (add-to-list 'auto-mode-alist '("\\.env\\..*\\'" . dotenv-mode)) 
-)
+  (add-to-list 'auto-mode-alist '("\\.env\\..*\\'" . dotenv-mode)))
 
 (use-package yaml-mode
-  :config
-  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-  :after lsp
-  :config
-  (add-hook 'yaml-mode-hook #'lsp))
+  :mode ("\\.y[a]?ml$" . yaml-mode))
 
 (use-package dockerfile-mode
   :config
@@ -896,8 +892,8 @@ Best keyboard layout
   (use-package yasnippet-snippets
     :ensure t)
   (setq yas-wrap-around-region t)
-  (yas-global-mode 1)
-)
+  :hook ((prog-mode . yas-minor-mode)
+        (text-mode . yas-minor-mode)))
 #+END_SRC
 *** LSP
 #+BEGIN_SRC emacs-lisp
@@ -944,6 +940,12 @@ Best keyboard layout
 
 #+END_SRC
 
+*** php-mode
+#+BEGIN_SRC emacs-lisp
+(use-package php-mode
+  :mode ("\\.php\\'" )
+)
+#+END_SRC
 *** Web-mode
 
 #+BEGIN_SRC emacs-lisp
