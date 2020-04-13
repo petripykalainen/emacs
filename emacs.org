@@ -157,12 +157,12 @@ Set UTF-8 as the default coding system
 
 We don't make any backups of files. This is what git is for.
 
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (setq-default auto-save-default nil
               create-lockfiles nil
               make-backup-files nil)
-#+END_SRC      
-*** UI  
+#+END_SRC
+*** UI
 **** Colors
 
 #+BEGIN_SRC emacs-lisp
@@ -202,7 +202,7 @@ We don't make any backups of files. This is what git is for.
 
 ;; Dired
 ;; (eval-after-load 'dired
-  ;; '(progn    
+  ;; '(progn
      ;; (set-face-attribute 'dired-directory nil :foreground "#66ccff" :height 1.2 :weight 'bold)))
 #+END_SRC
 
@@ -267,7 +267,7 @@ Enable line numbers
 
 #+BEGIN_SRC emacs-lisp
   (setq column-number-mode t)
-  (setq mode-line-position '((line-number-mode ("%l " (column-number-mode ": %c"))))) 
+  (setq mode-line-position '((line-number-mode ("%l " (column-number-mode ": %c")))))
   (setq-default frame-title-format "%f")
 
   ;; Bigger undo
@@ -308,18 +308,18 @@ Enable line numbers
   (setq global-auto-revert-non-file-buffers t)
   (setq auto-revert-verbose nil)
 
-  (eldoc-mode 1) 
-#+END_SRC  
-*** Editor 
+  (eldoc-mode 1)
+#+END_SRC
+*** Editor
 **** Bookmarks
 
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (setq-default
  bookmark-save-flag 1)  ; automatically save bookmarks after every change
 #+END_SRC
 
 **** Formatting
-     
+
 #+BEGIN_SRC emacs-lisp
 
 (setq-default
@@ -359,7 +359,7 @@ Enable line numbers
    (space-mark ?\  [?·] [?.])))
 #+END_SRC
 *** Font
-    
+
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'default nil :font "Dejavu Sans Mono 12" )
 #+END_SRC
@@ -394,7 +394,7 @@ Enable line numbers
            ;; outside the minibuffer
            (minibuffer-hide-completions))
          (abort-recursive-edit))
-        ;; Also quits help buffers (Ones with 'press q to quit' 
+        ;; Also quits help buffers (Ones with 'press q to quit'
         (t
          (unless (let ((found nil))
                    (dolist (w (window-list))
@@ -417,7 +417,7 @@ Enable line numbers
 	(web-mode-buffer-indent))))
 
 (defun petriweb-format-before-save ()
-  "Formats web-mode buffer. 
+  "Formats web-mode buffer.
    Similiar to tide-format-before-save hook."
   (interactive)
   (if (derived-mode-p 'web-mode)
@@ -497,11 +497,11 @@ Enable line numbers
   (eldoc-mode +1)
   (company-mode +1))
 
-#+END_SRC 
+#+END_SRC
 *** Keybinds
 #+BEGIN_SRC emacs-lisp
 (global-set-key [remap keyboard-quit] #'keyboard-quit-context+)
-#+END_SRC 
+#+END_SRC
 *** Hooks
 **** Text mode
 
@@ -638,13 +638,13 @@ Enable line numbers
   (add-hook 'prog-mode-hook 'ggtags-mode))
 #+END_SRC
 
-*** Xah-fly-keys 
-    
+*** Xah-fly-keys
+
 Best keyboard layout
 
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 
-(defun my-xfk-command-color () 
+(defun my-xfk-command-color ()
 (set-face-attribute 'mode-line nil :background "DarkGoldenrod2" :foreground "black"))
 
 (defun my-xfk-insert-color ()
@@ -656,14 +656,14 @@ Best keyboard layout
 (use-package xah-fly-keys
   :diminish xah-fly-keys
   :config
-  (xah-fly-keys-set-layout "qwerty") 
+  (xah-fly-keys-set-layout "qwerty")
   (setq xah-fly-use-meta-key nil)
   (xah-fly-keys 1)
   (define-key xah-fly-key-map (kbd "M-SPC") 'xah-fly-command-mode-activate)
-  :hook 
+  :hook
   ('xah-fly-command-mode-activate-hook 'my-xfk-command-color)
   ('xah-fly-insert-mode-activate-hook  'my-xfk-insert-color))
-#+END_SRC 
+#+END_SRC
 *** Spacemacs-theme
 
 #+BEGIN_SRC emacs-lisp
@@ -782,18 +782,19 @@ Best keyboard layout
   # :config
   # (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 # #+END_SRC
-*** add-node-modules-path
-    #+BEGIN_SRC emacs-lisp
-    
-    (use-package add-node-modules-path
-    :ensure t
-    :config
-    ;; automatically run the function when web-mode starts
-    ;;(eval-after-load 'rjsx-mode
-    (add-hook 'js-mode-hook 'add-node-modules-path)
-    (add-hook 'typescript-mode-hook 'add-node-modules-path))
 
-    #+END_SRC
+*** add-node-modules-path
+#+BEGIN_SRC emacs-lisp
+(use-package add-node-modules-path
+  :ensure t
+  :config
+  ;; automatically run the function when web-mode starts
+  ;;(eval-after-load 'rjsx-mode
+  (add-hook 'js-mode-hook 'add-node-modules-path)
+  (add-hook 'typescript-mode-hook 'add-node-modules-path))
+
+#+END_SRC
+
 *** Flycheck
 #+BEGIN_SRC emacs-lisp
   (autoload 'pkg-info-version-info "pkg-info")
@@ -841,7 +842,7 @@ Best keyboard layout
     ;;   :config
     ;;   (flycheck-pos-tip-mode 1)
     ;;   (setq pos-tip-background-color "red")
-    ;;   (setq pos-tip-foreground-color "white") 
+    ;;   (setq pos-tip-foreground-color "white")
     ;; )
 #+END_SRC
 *** Ivy
@@ -861,14 +862,14 @@ Best keyboard layout
 
   (use-package counsel
     :after ivy
-    ;; :config 
+    ;; :config
     ;; (counsel-mode)
   )
 #+END_SRC
 
 *** Dumb jump
 
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (use-package dumb-jump
   :commands (dumb-jump-go dumb-jump-go-other-window dumb-jump-go-prompti dumb-jump-go-prefer-external dumb-jump-go-prefer-external-other-window )
   :bind (("M-g o" . dumb-jump-go-other-window)
@@ -930,7 +931,7 @@ Best keyboard layout
   ;; (set-face-attribute 'company-tooltip-annotation nil :foreground "black" :slant 'italic' :height 1.1)
   ;; (set-face-attribute 'company-tooltip-common nil :foreground "gold" :weight 'bold' :height 1.2)
   ;; (set-face-attribute 'company-tooltip-selection nil :background "#8080ff")
-) 
+)
 
 (use-package company-lsp
   :commands company-lsp
@@ -945,6 +946,28 @@ Best keyboard layout
 (use-package php-mode
   :mode ("\\.php\\'" )
 )
+#+END_SRC
+
+*** Elpy
+#+BEGIN_SRC emacs-lisp
+(use-package elpy
+  :ensure t
+  :config
+  (elpy-enable))
+
+(use-package auto-virtualenvwrapper
+  :ensure t)
+
+(add-hook 'python-mode-hook #'auto-virtualenvwrapper-activate)
+
+(defun pyvenv-autoload ()
+"Automatically activates pyvenv version if .venv directory exists in project root"
+(let ((venv-path (f-expand ".venv" (elpy-project-root))))
+  (if (f-exists? venv-path)
+      (progn
+        (pyvenv-workon venv-path)))))
+
+
 #+END_SRC
 *** Web-mode
 
