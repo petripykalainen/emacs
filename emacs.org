@@ -603,17 +603,17 @@ Enable line numbers
 
 *** counsel-etags
 #+BEGIN_SRC emacs-lisp
-(use-package counsel-etags
-  :ensure t
-  :bind (("C-]" . counsel-etags-find-tag-at-point))
-  :init
-  (add-hook 'prog-mode-hook
-        (lambda ()
-          (add-hook 'after-save-hook
-            'counsel-etags-virtual-update-tags 'append 'local)))
-  :config
-  (setq counsel-etags-update-interval 60)
-  (push "build" counsel-etags-ignore-directories))
+  (use-package counsel-etags
+    :ensure t
+    :bind (("C-]" . counsel-etags-find-tag-at-point))
+    :init
+    ;; (add-hook 'prog-mode-hook
+    ;;       (lambda ()
+    ;;         (add-hook 'after-save-hook
+    ;;           'counsel-etags-virtual-update-tags 'append 'local)))
+    :config
+    (setq counsel-etags-update-interval 60)
+    (push "build" counsel-etags-ignore-directories))
 #+END_SRC
 
 *** counsel-gtags
@@ -893,30 +893,17 @@ Best keyboard layout
   (use-package yasnippet-snippets
     :ensure t)
   (setq yas-wrap-around-region t)
-  :hook ((prog-mode . yas-minor-mode)
-        (text-mode . yas-minor-mode)))
+  :hook ((prog-mode . yas-global-mode)
+        (text-mode . yas-global-mode)))
 #+END_SRC
-*** LSP
-#+BEGIN_SRC emacs-lisp
-
-  (use-package lsp-mode
-    :commands lsp
-    :init
-    (add-hook 'prog-mode-hook #'lsp)
-    :config
-    (setq lsp-diagnostic-package :none)
-  )
-
-#+END_SRC
-
 *** Company
 #+BEGIN_SRC emacs-lisp
 
 (use-package company
   :config
   (setq company-dabbrev-downcase 0)
-  (setq company-idle-delay 0.4)
-  (setq company-minimum-prefix-length 4)
+  (setq company-idle-delay 0.2)
+  (setq company-minimum-prefix-length 3)
   (setq company-dabbrev-downcase nil)
   (setq company-dabbrev-other-buffers t)
   (setq company-auto-complete nil)
@@ -950,22 +937,23 @@ Best keyboard layout
 
 *** Elpy
 #+BEGIN_SRC emacs-lisp
-(use-package elpy
-  :ensure t
-  :config
-  (elpy-enable))
+  (use-package elpy
+    :ensure t
+    :config
+    (elpy-enable)
+    (setq elpy-rpc-virtualenv-path 'current))
 
-(use-package auto-virtualenvwrapper
-  :ensure t)
+  (use-package auto-virtualenvwrapper
+    :ensure t)
 
-(add-hook 'python-mode-hook #'auto-virtualenvwrapper-activate)
+  (add-hook 'python-mode-hook #'auto-virtualenvwrapper-activate)
 
-(defun pyvenv-autoload ()
-"Automatically activates pyvenv version if .venv directory exists in project root"
-(let ((venv-path (f-expand ".venv" (elpy-project-root))))
-  (if (f-exists? venv-path)
-      (progn
-        (pyvenv-workon venv-path)))))
+  (defun pyvenv-autoload ()
+  "Automatically activates pyvenv version if .venv directory exists in project root"
+  (let ((venv-path (f-expand ".venv" (elpy-project-root))))
+    (if (f-exists? venv-path)
+        (progn
+          (pyvenv-workon venv-path)))))
 
 
 #+END_SRC
@@ -1031,6 +1019,20 @@ Best keyboard layout
   ;; (add-hook 'emmet-mode-hook (lambda () (setq emmet-indent-after-insert nil)))
   (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;; indent 2 spaces.
 )
+#+END_SRC
+*** LSP
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :init
+    (add-hook 'prog-mode-hook #'lsp-deferred)
+    :config
+    (setq lsp-file-watch-threshold 12000)
+    (setq lsp-idle-delay 0.500)
+    (setq lsp-prefer-capf t)
+    (setq lsp-diagnostic-package :none))
+
+  (setq read-process-output-max (* 1024 1024)) ;; 1mb
 #+END_SRC
 *** Indentation
 Indentation
