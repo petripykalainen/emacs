@@ -979,12 +979,16 @@ Best keyboard layout
 
 *** editorconfig
 #+BEGIN_SRC emacs-lisp
-(use-package editorconfig
-  :ensure t
-  :config
-  (editorconfig-mode 1))
-  (add-hook 'editorconfig-after-apply-functions
-  (lambda (props) (setq web-mode-block-padding 0)))
+  (use-package editorconfig
+    :ensure t
+    :demand t
+    :functions editorconfig-get-properties-function
+    :config
+    (editorconfig-mode 1)
+    (set-variable 'editorconfig-get-properties-function
+                  #'editorconfig-get-properties)
+    (add-hook 'editorconfig-after-apply-functions
+      (lambda (props) (setq web-mode-block-padding 0))))
 #+END_SRC
 
 *** JSON-mode
