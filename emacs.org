@@ -448,8 +448,18 @@ Enable line numbers
 
 ;; https://github.com/abo-abo/swiper/issues/1638#issuecomment-399224033
 (defun petri-counsel-ag ()
+  "Run silversearch from git root if it exists or from current folder."
   (interactive)
-  (counsel-ag nil default-directory))
+  (if (counsel--git-root)
+      (counsel-ag nil (counsel--git-root))
+  (counsel-ag nil default-directory)))
+
+(defun petri-counsel-fzf ()
+  "Run fzf from git root if it exists or from current folder."
+  (interactive)
+  (if  (counsel--git-root)
+      (counsel-fzf nil (counsel--git-root))
+  (counsel-fzf nil default-directory)))
 
 (defun place-brace ()
   (if (eq current-coding-style 'default) " {" "\n{"))
