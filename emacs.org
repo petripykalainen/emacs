@@ -361,7 +361,7 @@ Enable line numbers
 *** Font
 
 #+BEGIN_SRC emacs-lisp
-(set-face-attribute 'default nil :font "Dejavu Sans Mono 12" )
+(set-face-attribute 'default nil :font "Dejavu Sans Mono 10" )
 #+END_SRC
 
 *** Functions
