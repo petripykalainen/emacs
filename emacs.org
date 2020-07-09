@@ -991,6 +991,7 @@ Best keyboard layout
     '(("php"    . "\\.phtml\\'")
       ("blade"  . "\\.blade\\.")))
   (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-enable-auto-indentation nil)
   (setq web-mode-sql-indent-offset 2)
   (add-hook 'web-mode-hook 'my-web-mode-hook))
 #+END_SRC
