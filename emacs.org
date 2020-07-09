@@ -448,11 +448,18 @@ Enable line numbers
 
 ;; https://github.com/abo-abo/swiper/issues/1638#issuecomment-399224033
 (defun petri-counsel-ag ()
-  "Run silversearch from git root if it exists or from current folder."
+  "Run silversearcher from git root if it exists or from current folder."
   (interactive)
   (if (counsel--git-root)
       (counsel-ag nil (counsel--git-root))
   (counsel-ag nil default-directory)))
+
+(defun petri-counsel-rg ()
+  "Run ripgrep from git root if it exists or from current folder."
+  (interactive)
+  (if (counsel--git-root)
+      (counsel-rg nil (counsel--git-root))
+  (counsel-rg nil default-directory)))
 
 (defun petri-counsel-fzf ()
   "Run fzf from git root if it exists or from current folder."
@@ -872,6 +879,7 @@ Best keyboard layout
 
   (use-package counsel
     :after ivy
+    (setq counsel-ag-base-command "ag --vimgrep -W 120 %s")
     ;; :config
     ;; (counsel-mode)
   )
