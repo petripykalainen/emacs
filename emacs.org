@@ -297,6 +297,9 @@ Enable line numbers
 
   (fset 'list-buffers 'ibuffer)
   (fset 'isearch-forward 'swiper)
+  (defalias 'emw 'emmet-wrap-with-markup)
+  (defalias 'crg 'counsel-rg)
+  (defalias 'cfzf 'counsel-fzf)
   ;;(defalias 'query-replace 'replace-string)
   ;; (defalias 'xah-insert-date 'petri-insert-date)
 
