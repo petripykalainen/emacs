@@ -832,13 +832,14 @@ Best keyboard layout
 
 *** Flycheck
 #+BEGIN_SRC emacs-lisp
-  (autoload 'pkg-info-version-info "pkg-info")
+  ;; (autoload 'pkg-info-version-info "pkg-info")
 
   (use-package flycheck
     :commands (flycheck-mode flycheck-list-errors flycheck-buffer)
-    :init (add-hook 'prog-mode-hook 'flycheck-mode)
+    :hook
+    (prog-mode . flycheck-mode)
     :config
-    (petri-flycheck-colors)
+    ;;(petri-flycheck-colors)
     (setq flycheck-check-syntax-automatically '(save mode-enabled))
     (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc emacs-lisp javascript-jshint json-jsonlint))
     (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
@@ -896,9 +897,8 @@ Best keyboard layout
     (fset 'isearch-forward 'swiper))
 
   (use-package counsel
-    :after ivy
+    :config
     (setq counsel-ag-base-command "ag --vimgrep -W 120 %s")
-    ;; :config
     ;; (counsel-mode)
   )
 #+END_SRC
