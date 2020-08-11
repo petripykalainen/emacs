@@ -677,15 +677,14 @@ Enable line numbers
 Best keyboard layout
 
 #+BEGIN_SRC emacs-lisp
-
 (defun my-xfk-command-color ()
 (set-face-attribute 'mode-line nil :background "DarkGoldenrod2" :foreground "black"))
 
 (defun my-xfk-insert-color ()
 (set-face-attribute 'mode-line nil :background "chartreuse3" :foreground "black"))
 
-(add-hook 'xah-fly-command-mode-activate-hook 'my-xfk-command-color)
-(add-hook 'xah-fly-insert-mode-activate-hook  'my-xfk-insert-color)
+;;(add-hook 'xah-fly-command-mode-activate-hook 'my-xfk-command-color)
+;;(add-hook 'xah-fly-insert-mode-activate-hook  'my-xfk-insert-color)
 
 (use-package xah-fly-keys
   :diminish xah-fly-keys
@@ -704,8 +703,9 @@ Best keyboard layout
 (use-package spacemacs-common
     :ensure spacemacs-theme
     :config (load-theme 'spacemacs-dark t)
-    (set-face-attribute 'mode-line-buffer-id nil :foreground "black")
-    (set-face-attribute 'mode-line nil :background "DarkGoldenrod2" :foreground "black"))
+    ;; (set-face-attribute 'mode-line-buffer-id nil :foreground "black")
+    ;; (set-face-attribute 'mode-line nil :background "DarkGoldenrod2" :foreground "black")
+)
 #+END_SRC
 *** HL-todo
 
