@@ -906,17 +906,17 @@ Best keyboard layout
 *** Dumb jump
 
 #+BEGIN_SRC emacs-lisp
-(use-package dumb-jump
-  :commands (dumb-jump-go dumb-jump-go-other-window dumb-jump-go-prompti dumb-jump-go-prefer-external dumb-jump-go-prefer-external-other-window )
-  :bind (("M-g o" . dumb-jump-go-other-window)
-         ("M-g j" . dumb-jump-go)
-         ("M-g i" . dumb-jump-go-prompt)
-         ("M-g x" . dumb-jump-go-prefer-external)
-         ("M-g z" . dumb-jump-go-prefer-external-other-window))
-  :config
-  (setq dumb-jump-prefer-searcher 'ag)
-  (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
-)
+;; (use-package dumb-jump
+  ;; :commands (dumb-jump-go dumb-jump-go-other-window dumb-jump-go-prompti dumb-jump-go-prefer-external dumb-jump-go-prefer-external-other-window )
+  ;; :bind (("M-g o" . dumb-jump-go-other-window)
+         ;; ("M-g j" . dumb-jump-go)
+         ;; ("M-g i" . dumb-jump-go-prompt)
+         ;; ("M-g x" . dumb-jump-go-prefer-external)
+         ;; ("M-g z" . dumb-jump-go-prefer-external-other-window))
+  ;; :config
+  ;; (setq dumb-jump-prefer-searcher 'ag)
+  ;; (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
+;; )
 
 #+END_SRC
 *** Yasnippet
@@ -935,32 +935,37 @@ Best keyboard layout
 *** Company
 #+BEGIN_SRC emacs-lisp
 
-(use-package company
-  :config
-  (setq company-dabbrev-downcase 0)
-  (setq company-idle-delay 0.2)
-  (setq company-minimum-prefix-length 3)
-  (setq company-dabbrev-downcase nil)
-  (setq company-dabbrev-other-buffers t)
-  (setq company-auto-complete nil)
-  (setq company-dabbrev-code-other-buffers 'all)
-  (setq company-dabbrev-code-everywhere t)
-  (setq company-dabbrev-code-ignore-case t)
-  (setq company-tooltip-align-annotations t)
-  (add-hook 'after-init-hook 'global-company-mode)
-  ;; (set-face-attribute 'company-tooltip nil :background "#4d4d4d" :foreground "white")
-  ;; (set-face-attribute 'company-scrollbar-bg nil :background "#4d4d4d")
-  ;; (set-face-attribute 'company-scrollbar-fg nil :background "#737373")
-  ;; (set-face-attribute 'company-tooltip-annotation nil :foreground "black" :slant 'italic' :height 1.1)
-  ;; (set-face-attribute 'company-tooltip-common nil :foreground "gold" :weight 'bold' :height 1.2)
-  ;; (set-face-attribute 'company-tooltip-selection nil :background "#8080ff")
-)
+  (use-package company
+    ;; :init
+    ;; (setq company-backends '(company-capf company-dabbrev-code company-dabbrev company-files  company-lsp))
+    :config
+    ;; (setq company-dabbrev-downcase 0)
+    ;; (setq company-idle-delay 0.2)
+    ;; (setq company-minimum-prefix-length 3)
+    ;; (setq company-dabbrev-downcase nil)
+    ;; (setq company-dabbrev-other-buffers t)
+    ;; (setq company-auto-complete nil)
+    ;; (setq company-dabbrev-code-other-buffers 'all)
+    ;; (setq company-dabbrev-code-everywhere t)
+    ;; (setq company-dabbrev-code-ignore-case t)
+    ;; (setq company-tooltip-align-annotations t)
+    (add-hook 'after-init-hook 'global-company-mode)
+    ;; (add-to-list 'company-backends 'company-dabbrev-code) 
+    ;; (add-to-list 'company-backends 'company-files)
+    ;; (set-face-attribute 'company-tooltip nil :background "#4d4d4d" :foreground "white")
+    ;; (set-face-attribute 'company-scrollbar-bg nil :background "#4d4d4d")
+    ;; (set-face-attribute 'company-scrollbar-fg nil :background "#737373")
+    ;; (set-face-attribute 'company-tooltip-annotation nil :foreground "black" :slant 'italic' :height 1.1)
+    ;; (set-face-attribute 'company-tooltip-common nil :foreground "gold" :weight 'bold' :height 1.2)
+    ;; (set-face-attribute 'company-tooltip-selection nil :background "#8080ff")
+  )
 
-(use-package company-lsp
-  :commands company-lsp
-  :config
-  (setq company-lsp-cache-candidates t)
-  (push 'company-lsp company-backends))
+   ;; (use-package company-lsp
+   ;;   :commands company-lsp
+   ;;   :config
+   ;;   (setq company-lsp-cache-candidates t)
+   ;;   (push 'company-lsp company-backends)
+   ;;   )
 
 #+END_SRC
 
@@ -1065,13 +1070,13 @@ Best keyboard layout
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
     :commands (lsp lsp-deferred)
-    :init
-    (add-hook 'prog-mode-hook #'lsp-deferred)
-    :config
-    (setq lsp-file-watch-threshold 12000)
-    (setq lsp-idle-delay 0.500)
-    (setq lsp-prefer-capf t)
-    (setq lsp-diagnostic-package :none))
+    :hook (prog-mode . lsp)
+    ;; :config
+    ;; (setq lsp-file-watch-threshold 12000)
+    ;; (setq lsp-idle-delay 0.500)
+    ;; (setq lsp-prefer-capf t)
+    ;; (setq lsp-diagnostic-package :none))
+  )
 
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
 #+END_SRC
