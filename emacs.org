@@ -277,8 +277,8 @@ Enable line numbers
   (setq ring-bell-function 'ignore)
   (blink-cursor-mode 0)
   ;; (require 'vc)
-  (eval-after-load "vc" '(remove-hook 'find-file-hook 'vc-find-file-hook))
-  (setq vc-handled-backends nil)
+  ;; (eval-after-load "vc" '(remove-hook 'find-file-hook 'vc-find-file-hook))
+  ;; (setq vc-handled-backends nil)
 
   ;; Show paren
   (show-paren-mode 1)
