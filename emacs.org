@@ -616,6 +616,20 @@ Enable line numbers
 (add-hook 'css-mode-hook 'my-css-hook)
 #+END_SRC
 ** Core Packages
+*** all-the-icons
+#+begin_src emacs-lisp
+  ;; (use-package all-the-icons
+    ;; (add-hook 'after-init-hook  (lambda () (all-the-icons-install-fonts))))
+  ;; )
+#+end_src
+*** Doom-modeline
+#+begin_src emacs-lisp
+  ;; (use-package doom-modeline
+    ;; :ensure t
+    ;; :config
+    ;; (doom-modeline-mode 1)
+    ;; (setq doom-modeline-vcs-max-length 25))
+#+end_src
 *** bind-key
 #+BEGIN_SRC emacs-lisp
     (use-package bind-key)
