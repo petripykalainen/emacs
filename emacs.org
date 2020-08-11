@@ -693,6 +693,7 @@ Best keyboard layout
   (setq xah-fly-use-meta-key nil)
   (xah-fly-keys 1)
   (define-key xah-fly-key-map (kbd "M-SPC") 'xah-fly-command-mode-activate)
+  (define-key xah-fly-t-keymap (kbd "i") 'avy-goto-char)
   :hook
   ('xah-fly-command-mode-activate-hook 'my-xfk-command-color)
   ('xah-fly-insert-mode-activate-hook  'my-xfk-insert-color))
