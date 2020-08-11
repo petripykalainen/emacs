@@ -610,7 +610,7 @@ Enable line numbers
 #+BEGIN_SRC emacs-lisp
 (defun my-css-hook ()
   (setq css-indent-offset 2)
-  (add-to-list 'company-backends '(company-css company-abbrev company-dabbrev))
+  ;;(add-to-list 'company-backends '(company-css company-abbrev company-dabbrev))
   (emmet-mode))
 
 (add-hook 'css-mode-hook 'my-css-hook)
