@@ -895,11 +895,47 @@ Best keyboard layout
 *** Ivy
 
 #+BEGIN_SRC emacs-lisp
+  (defun +ivy-format-function-line-or-arrow (cands)
+  "Transform CANDS into a string for minibuffer.
+
+If in terminal, prefix candidates with a chevron to make it more obvious which
+one you're selecting, especially in themes that can't set a good background for
+`ivy-current-match'. This is a combination of `ivy-format-function-line' and
+`ivy-format-function-arrow'.
+
+In the GUI, this is the same as `ivy-format-function-line'."
+  (if (display-graphic-p)
+      (ivy-format-function-line cands)
+    (ivy--format-function-generic
+     (lambda (str)
+       (ivy--add-face (concat "> " str "\n") 'ivy-current-match))
+     (lambda (str)
+       (concat "  " str "\n"))
+     cands
+     "")))
+
   (use-package ivy
     :init
     (setq ivy-use-virtual-buffers t)
     (setq ivy-count-format "(%d/%d) ")
     :config
+    (setq ivy-height 17
+        ivy-wrap t
+        ivy-fixed-height-minibuffer t
+        projectile-completion-system 'ivy
+        ;; disable magic slash on non-match
+        ivy-magic-slash-non-match-action nil
+        ;; don't show recent files in switch-buffer
+        ivy-use-virtual-buffers nil
+        ;; ...but if that ever changes, show their full path
+        ivy-virtual-abbreviate 'full
+        ;; don't quit minibuffer on delete-error
+        ivy-on-del-error-function #'ignore
+        ;; enable ability to select prompt (alternative to `ivy-immediate-done')
+        ivy-use-selectable-prompt t)
+
+    (setf (alist-get 't ivy-format-functions-alist)
+        #'+ivy-format-function-line-or-arrow)
     (ivy-mode 1))
 
   (use-package swiper
@@ -1079,14 +1115,15 @@ Best keyboard layout
 #+END_SRC
 *** LSP
 #+BEGIN_SRC emacs-lisp
+
   (use-package lsp-mode
     :commands (lsp lsp-deferred)
     :hook (prog-mode . lsp)
-    ;; :config
-    ;; (setq lsp-file-watch-threshold 12000)
-    ;; (setq lsp-idle-delay 0.500)
-    ;; (setq lsp-prefer-capf t)
-    ;; (setq lsp-diagnostic-package :none))
+    :config
+    (setq lsp-file-watch-threshold 12000)
+    (setq lsp-idle-delay 0.500)
+    (setq lsp-completion-provider :capf)
+  ;; (setq lsp-diagnostic-package :none))
   )
 
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
