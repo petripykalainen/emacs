@@ -895,8 +895,9 @@ Best keyboard layout
 *** Ivy
 
 #+BEGIN_SRC emacs-lisp
+  ;; From doom emacs
   (defun +ivy-format-function-line-or-arrow (cands)
-  "Transform CANDS into a string for minibuffer.
+    "Transform CANDS into a string for minibuffer.
 
 If in terminal, prefix candidates with a chevron to make it more obvious which
 one you're selecting, especially in themes that can't set a good background for
