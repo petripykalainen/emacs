@@ -701,43 +701,54 @@ Best keyboard layout
 *** Spacemacs-theme
 
 #+BEGIN_SRC emacs-lisp
-(use-package spacemacs-common
-    :ensure spacemacs-theme
-    :config (load-theme 'spacemacs-dark t)
+(use-package humanoid-themes
+  :config
+  (load-theme 'humanoid-dark t))
+
+;;(use-package spacemacs-common
+;;    :ensure spacemacs-theme
+;;    :config (load-theme 'spacemacs-dark t)
     ;; (set-face-attribute 'mode-line-buffer-id nil :foreground "black")
     ;; (set-face-attribute 'mode-line nil :background "DarkGoldenrod2" :foreground "black")
-)
+;;)
 #+END_SRC
 *** HL-todo
 
 #+BEGIN_SRC emacs-lisp
-(use-package hl-todo
-  :init
-  (add-hook 'after-init-hook (lambda () (setq hl-todo-keyword-faces
-   '(("TODO"   . "#ff0000")
-     ("FIXME"  . "#ff0000")
-     ("DEBUG"  . "#a020f0")
-     ("GOTCHA" . "#ff4500")
-     ("STUB"   . "#1e90ff")))))
-  ;; (setq hl-todo-keyword-faces
-  ;;       '(("HOLD" . "#d0bf8f")
-  ;;        ("TODO" . "#cc9393")
-  ;;        ("NEXT" . "#dca3a3")
-  ;;        ("THEM" . "#dc8cc3")
-  ;;        ("PROG" . "#7cb8bb")
-  ;;        ("OKAY" . "#7cb8bb")
-  ;;        ("DONT" . "#5f7f5f")
-  ;;        ("FAIL" . "#8c5353")
-  ;;        ("DONE" . "#afd8af")
-  ;;        ("NOTE" . "#d0bf8f")
-  ;;        ("KLUDGE" . "#d0bf8f")
-  ;;        ("HACK" . "#d0bf8f")
-  ;;        ("TEMP" . "#d0bf8f")
-  ;;        ("FIXME" . "#cc9393")
-  ;;        ("XXX+" . "#cc9393")))
-  :config
-  (global-hl-todo-mode 1)
-)
+  (use-package hl-todo
+    :init
+    ;; (add-hook 'after-init-hook (lambda () (setq hl-todo-keyword-faces
+     ;; '(("TODO"   . "#ff0000")
+       ;; ("FIXME"  . "#ff0000")
+       ;; ("DEBUG"  . "#a020f0")
+       ;; ("GOTCHA" . "#ff4500")
+       ;; ("STUB"   . "#1e90ff")))))
+    ;; (setq hl-todo-keyword-faces
+    ;;       '(("HOLD" . "#d0bf8f")
+    ;;        ("TODO" . "#cc9393")
+    ;;        ("NEXT" . "#dca3a3")
+    ;;        ("THEM" . "#dc8cc3")
+    ;;        ("PROG" . "#7cb8bb")
+    ;;        ("OKAY" . "#7cb8bb")
+    ;;        ("DONT" . "#5f7f5f")
+    ;;        ("FAIL" . "#8c5353")
+    ;;        ("DONE" . "#afd8af")
+    ;;        ("NOTE" . "#d0bf8f")
+    ;;        ("KLUDGE" . "#d0bf8f")
+    ;;        ("HACK" . "#d0bf8f")
+    ;;        ("TEMP" . "#d0bf8f")
+    ;;        ("FIXME" . "#cc9393")
+    ;;        ("XXX+" . "#cc9393")))
+    :config
+    (setq hl-todo-highlight-punctuation ":")
+    (setq hl-todo-keyword-faces
+     '(("TODO"   . "#ff0000")
+       ("FIXME"  . "#ff0000")
+       ("DEBUG"  . "#a020f0")
+       ("GOTCHA" . "#ff4500")
+       ("STUB"   . "#1e90ff")))
+    (global-hl-todo-mode 1)
+  )
 #+END_SRC
 
 *** Avy
