@@ -78,7 +78,8 @@
 (map! :leader
       (:prefix-map ("o" . "open")
        :desc "Dired"              "d"  #'dired-jump))
-
+(map! :map evil-normal-state-map "u" 'undo-fu-only-undo)
+(map! :map evil-normal-state-map "C-r" 'undo-fu-only-redo)
 ;; (defun xah-unsplit-window-or-next-frame ()
 ;;   "Unsplit window. If current frame has only one window, switch to next frame.
 ;; Version 2017-01-29"
